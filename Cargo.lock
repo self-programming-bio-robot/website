@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "zhdanov_dev"
+name = "zhdanov_website_core"
 version = "0.1.0"

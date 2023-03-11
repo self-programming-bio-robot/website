@@ -23,7 +23,14 @@ impl Default for PageLocalRepository {
                         link: "https://github.com/KaskaRUS".to_string(),
                     }
                 ]
-            }
+            },
+            Page {
+                id: "404".to_string(),
+                title: "Page not found".to_string(),
+                content: include_str!("../pages/404.md").to_string(),
+                links: vec![]
+            },
+
         ];
         Self { 
             pages: pages.into_iter()

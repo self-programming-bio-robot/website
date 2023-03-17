@@ -10,6 +10,5 @@ fn main() -> Result<()> {
 
     loop {
         controller.print_current_page()?;
-        controller.wait_input()?;
     }
 }

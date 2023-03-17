@@ -9,6 +9,18 @@ pub fn pages() -> Vec<Page<'static>> {
             links: vec!["about_me", "cv"],
         },
         Page {
+            id: "about_me",
+            title: "About me".to_string(),
+            content: include_str!("../pages/about_me.txt").to_string(),
+            links: vec!["main", "cv"],
+        },
+        Page {
+            id: "cv",
+            title: "Zhdanov's curriculum vitae".to_string(),
+            content: include_str!("../pages/cv.txt").to_string(),
+            links: vec![],
+        },
+        Page {
             id: "404",
             title: "Page not found".to_string(),
             content: include_str!("../pages/404.txt").to_string(),

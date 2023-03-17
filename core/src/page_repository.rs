@@ -33,7 +33,7 @@ mod tests {
     #[test]
     fn success_create_default_page_local_repository() {
         let repo = PageLocalRepository::default();
-        assert_eq!(repo.pages.len(), 2);
+        assert_eq!(repo.pages.len(), 4);
     }
     
     #[test]

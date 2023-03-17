@@ -33,15 +33,16 @@ impl<'life> PageController<'life, 'life> {
         }
     }
 
-    pub fn print_current_page(&self) -> Result<()> {
+    pub fn print_current_page(&mut self) -> Result<()> {
         let mut stdout = stdout();
+
         queue!(stdout,
                terminal::Clear(terminal::ClearType::All),
                cursor::MoveTo(0, 0),
                Print(&self.current_page.content),
         )?;
         stdout.flush()?;
-
+        self.wait_input()?;
         Ok(())
     }
 

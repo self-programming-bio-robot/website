@@ -7,3 +7,7 @@ edition = "2021"
 
 [dependencies]
 yew = { version = "0.20.0", features = ["csr"] }
+yew-router = "0.17"
+
+[dependencies.zhdanov_website_core]
+path = "../core"

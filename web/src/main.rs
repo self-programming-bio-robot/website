@@ -3,6 +3,9 @@ use std::rc::Rc;
 use yew::prelude::*;
 use yew_router::prelude::*;
 use zhdanov_website_core::page_repository::{PageLocalRepository, PageRepository};
+use web_sys::Window;
+use wasm_bindgen::JsCast;
+use web_sys::{EventTarget, HtmlInputElement};
 
 #[derive(Clone, Routable, PartialEq)]
 enum Route {
@@ -15,7 +18,7 @@ enum Route {
     Page { name: String },
 }
 
-#[derive(Properties, PartialEq)]
+#[derive(Properties, PartialEq, Clone)]
 pub struct ArticleProps {
     #[prop_or(AttrValue::from("main"))]
     pub name: AttrValue,
@@ -43,9 +46,55 @@ fn home_page() -> Html {
 #[function_component(ArticlePage)]
 fn article_page(props: &ArticleProps) -> Html {
     let context = use_context::<Rc<Context>>().unwrap();
+    let navigator = use_navigator().unwrap();
+    let input_text = use_state(String::new);
+
     if let Some(page_content) = context.database.get_page(&props.name[..]) {
+
+        let handle_submit = Callback::from({
+            let links: Vec<String> = page_content.links.iter()
+                .map(|x| x.to_string()).collect();
+            let input_text = input_text.clone();
+
+            move |event: SubmitEvent| {
+                event.prevent_default();
+                if links.len() == 0 {
+                    navigator.push(&Route::Page {
+                        name: "main".into()
+                    });        
+                    input_text.set("".to_owned());
+                } else {
+                    let value = &input_text[..];
+                    if let Ok(value) = value.parse::<usize>() {
+                        navigator.push(&Route::Page {
+                            name: links[value].clone()
+                        });        
+                    }
+                    input_text.set("".to_owned());
+                }
+            }
+        });
+
+        let handle_input = {
+            let input_text = input_text.clone();
+            Callback::from(move |event: InputEvent| {
+                let input = event.target();
+                let input = input.and_then(|t| t.dyn_into::<HtmlInputElement>().ok());
+                let input = input.unwrap();
+
+                input_text.set(input.value());
+            })
+        };
+        let text = &input_text[..].to_owned();
         html! {
-            <pre>{page_content.content.clone()}</pre>
+            <>
+                <pre>{page_content.content.clone()}</pre>
+                <p>
+                    <form onsubmit={handle_submit}>
+                        <input oninput={handle_input} value={text.clone()} />
+                    </form>
+                </p>
+            </>
         }
     } else {
         html! {

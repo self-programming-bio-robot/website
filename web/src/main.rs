@@ -3,9 +3,8 @@ use std::rc::Rc;
 use yew::prelude::*;
 use yew_router::prelude::*;
 use zhdanov_website_core::page_repository::{PageLocalRepository, PageRepository};
-use web_sys::Window;
 use wasm_bindgen::JsCast;
-use web_sys::{EventTarget, HtmlInputElement};
+use web_sys::{HtmlInputElement, HtmlElement};
 
 #[derive(Clone, Routable, PartialEq)]
 enum Route {
@@ -26,20 +25,15 @@ pub struct ArticleProps {
 
 fn router(route: Route) -> Html {
     match route {
-        Route::Home => html! { <HomePage /> },
-        Route::NotFound => html! { <NotFoundPage /> },
+        Route::Home => html! { 
+            <ArticlePage name="main" /> 
+        },
+        Route::NotFound => html! { 
+            <ArticlePage name="404" />
+        },
         Route::Page { name } => html! { 
             <ArticlePage name={name} /> 
         },
-    }
-}
-
-#[function_component(HomePage)]
-fn home_page() -> Html {
-    let context = use_context::<Rc<Context>>().unwrap();
-    let page_content = context.database.get_page("main").unwrap();
-    html! {
-        <pre>{page_content.content.clone()}</pre>
     }
 }
 
@@ -48,6 +42,19 @@ fn article_page(props: &ArticleProps) -> Html {
     let context = use_context::<Rc<Context>>().unwrap();
     let navigator = use_navigator().unwrap();
     let input_text = use_state(String::new);
+    let input_ref = use_node_ref();
+    let output_ref = use_node_ref();
+
+    {
+        let input_ref = input_ref.clone();
+        use_effect_with_deps(|input_ref| {
+            let input = input_ref
+                .cast::<HtmlInputElement>()
+                .expect("could not attach to input field");
+            input.focus().unwrap();
+        }, 
+        input_ref);
+    }
 
     if let Some(page_content) = context.database.get_page(&props.name[..]) {
 
@@ -55,6 +62,7 @@ fn article_page(props: &ArticleProps) -> Html {
             let links: Vec<String> = page_content.links.iter()
                 .map(|x| x.to_string()).collect();
             let input_text = input_text.clone();
+            let output_ref = output_ref.clone();
 
             move |event: SubmitEvent| {
                 event.prevent_default();
@@ -66,9 +74,19 @@ fn article_page(props: &ArticleProps) -> Html {
                 } else {
                     let value = &input_text[..];
                     if let Ok(value) = value.parse::<usize>() {
-                        navigator.push(&Route::Page {
-                            name: links[value].clone()
-                        });        
+                        if value < links.len() {
+                            navigator.push(&Route::Page {
+                                name: links[value].clone()
+                            });
+                        } else {
+                            let message = format!("\n{}\nMax page number is {}\nTry again...", 
+                                                  &value, links.len());
+                            add_text_to_console(output_ref.clone(), message.as_str());
+                        }
+                    } else {
+                        let message = format!("\n{}\nExpept number is in range 0..{}\nTry again...", 
+                                                  &value, links.len()-1);
+                        add_text_to_console(output_ref.clone(), message.as_str());
                     }
                     input_text.set("".to_owned());
                 }
@@ -88,10 +106,10 @@ fn article_page(props: &ArticleProps) -> Html {
         let text = &input_text[..].to_owned();
         html! {
             <>
-                <pre>{page_content.content.clone()}</pre>
+                <pre ref={output_ref}>{page_content.content.clone()}</pre>
                 <p>
                     <form onsubmit={handle_submit}>
-                        <input oninput={handle_input} value={text.clone()} />
+                        <input ref={input_ref} oninput={handle_input} value={text.clone()} />
                     </form>
                 </p>
             </>
@@ -103,13 +121,13 @@ fn article_page(props: &ArticleProps) -> Html {
     }
 }
 
-#[function_component(NotFoundPage)]
-fn not_found_page() -> Html {
-    let context = use_context::<Rc<Context>>().unwrap();
-    let page_content = context.database.get_page("404").unwrap();
-    html! {
-        <pre>{page_content.content.clone()}</pre>
-    }
+fn add_text_to_console(node_ref: NodeRef, text: &str) {
+    let console = node_ref
+        .cast::<HtmlElement>()
+        .expect("could not attach to element");
+    let mut content = console.text_content().unwrap();
+    content.push_str(text);
+    console.set_text_content(Some(&content[..]));
 }
 
 #[derive(Clone)]

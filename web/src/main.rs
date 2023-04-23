@@ -40,7 +40,24 @@ fn router(route: Route) -> Html {
 #[function_component(ArticlePage)]
 fn article_page(props: &ArticleProps) -> Html {
     let context = use_context::<Rc<Context>>().unwrap();
-    
+    let additional = use_state(String::new);
+    let insert_text = {
+        let additional = additional.clone();
+        Callback::from(move |x: String| {
+            let mut last_text = String::new();
+            last_text.push_str(additional.as_str());
+            last_text.push_str(x.as_str());
+            additional.set(last_text);
+        })
+    };
+
+    let clear_text = {
+        let additional = additional.clone();
+        Callback::from(move |_: ()| {
+            additional.set("".into());
+        })
+    };
+
     if let Some(page_content) = context.database.get_page(&props.name[..]) {
         let content = page_content.content.clone();
         let links: Vec<String> = page_content.links.iter()
@@ -48,8 +65,13 @@ fn article_page(props: &ArticleProps) -> Html {
             .collect();
         html! {
             <>
-                <ConsoleView text={content} />
-                <ConsoleInput links={links} />
+                <ConsoleView 
+                    text={content} 
+                    after={additional.clone().to_string()} />
+                <ConsoleInput 
+                    links={links} 
+                    on_error={insert_text}
+                    on_submit={clear_text} />
             </>
         }
     } else {
@@ -63,6 +85,8 @@ fn article_page(props: &ArticleProps) -> Html {
 pub struct ConsoleViewProps {
     #[prop_or(AttrValue::from(""))]
     pub text: AttrValue,
+    #[prop_or(AttrValue::from(""))]
+    pub after: AttrValue,
 }
 
 #[function_component(ConsoleView)]
@@ -70,6 +94,7 @@ fn console_view(props: &ConsoleViewProps) -> Html {
     html! {
         <pre>
             {props.text.clone()}
+            {props.after.clone()}
         </pre>
     }
 }
@@ -78,6 +103,8 @@ fn console_view(props: &ConsoleViewProps) -> Html {
 pub struct ConsoleInputProps {
     #[prop_or(vec![])]
     pub links: Vec<String>,
+    pub on_error: Callback<String>,
+    pub on_submit: Callback<()>,
 }
 
 #[function_component(ConsoleInput)]
@@ -98,7 +125,7 @@ fn console_input(props: &ConsoleInputProps) -> Html {
     }
 
     let handle_submit = {
-        let ConsoleInputProps{ links } = props.clone();
+        let ConsoleInputProps{ links, on_error, on_submit } = props.clone();
         
         Callback::from({
             let input_text = input_text.clone();
@@ -110,6 +137,7 @@ fn console_input(props: &ConsoleInputProps) -> Html {
                         name: "main".into()
                     });        
                     input_text.set("".to_owned());
+                    on_submit.emit(());
                 } else {
                     let value = &input_text[..];
                     if let Ok(value) = value.parse::<usize>() {
@@ -117,16 +145,16 @@ fn console_input(props: &ConsoleInputProps) -> Html {
                             navigator.push(&Route::Page {
                                 name: links[value].clone()
                             });
+                            on_submit.emit(());
                         } else {
-//                            let message = format!("\n{}\nMax page number is {}\nTry again...", 
-//                                                  &value, links.len());
- //                           add_text_to_console(output_ref.clone(), message.as_str());
+                            let message = format!("\n{}\nMax page number is {}\nTry again...", 
+                                                  &value, links.len());
+                            on_error.emit(message);
                         }
                     } else {
-//                        let message = format!("\n{}\nExpept number is in range 0..{}\nTry again...", 
-//                                                  &value, links.len()-1);
-//                        content.borrow_mut().push_str(message.as_str());
-                        //add_text_to_console(output_ref.clone(), message.as_str());
+                        let message = format!("\n{}\nExpept number is in range 0..{}\nTry again...", 
+                                                  &value, links.len()-1);
+                        on_error.emit(message);
                     }
                     input_text.set("".to_owned());
                 }
@@ -152,14 +180,6 @@ fn console_input(props: &ConsoleInputProps) -> Html {
             </form>
         </p>
     }
-}
-fn add_text_to_console(node_ref: NodeRef, text: &str) {
-    let console = node_ref
-        .cast::<HtmlElement>()
-        .expect("could not attach to element");
-    let mut content = console.text_content().unwrap();
-    content.push_str(text);
-    console.set_text_content(Some(&content[..]));
 }
 
 #[derive(Clone)]

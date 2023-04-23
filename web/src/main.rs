@@ -40,10 +40,51 @@ fn router(route: Route) -> Html {
 #[function_component(ArticlePage)]
 fn article_page(props: &ArticleProps) -> Html {
     let context = use_context::<Rc<Context>>().unwrap();
+    
+    if let Some(page_content) = context.database.get_page(&props.name[..]) {
+        let content = page_content.content.clone();
+        let links: Vec<String> = page_content.links.iter()
+            .map(|x| x.to_string())
+            .collect();
+        html! {
+            <>
+                <ConsoleView text={content} />
+                <ConsoleInput links={links} />
+            </>
+        }
+    } else {
+        html! {
+            <Redirect<Route> to={Route::NotFound}/>
+        }
+    }
+}
+
+#[derive(Properties, PartialEq, Clone)]
+pub struct ConsoleViewProps {
+    #[prop_or(AttrValue::from(""))]
+    pub text: AttrValue,
+}
+
+#[function_component(ConsoleView)]
+fn console_view(props: &ConsoleViewProps) -> Html {
+    html! {
+        <pre>
+            {props.text.clone()}
+        </pre>
+    }
+}
+
+#[derive(Properties, PartialEq, Clone)]
+pub struct ConsoleInputProps {
+    #[prop_or(vec![])]
+    pub links: Vec<String>,
+}
+
+#[function_component(ConsoleInput)]
+fn console_input(props: &ConsoleInputProps) -> Html {
+    let input_text = use_state(String::new); 
     let navigator = use_navigator().unwrap();
-    let input_text = use_state(String::new);
     let input_ref = use_node_ref();
-    let output_ref = use_node_ref();
 
     {
         let input_ref = input_ref.clone();
@@ -56,13 +97,11 @@ fn article_page(props: &ArticleProps) -> Html {
         input_ref);
     }
 
-    if let Some(page_content) = context.database.get_page(&props.name[..]) {
-
-        let handle_submit = Callback::from({
-            let links: Vec<String> = page_content.links.iter()
-                .map(|x| x.to_string()).collect();
+    let handle_submit = {
+        let ConsoleInputProps{ links } = props.clone();
+        
+        Callback::from({
             let input_text = input_text.clone();
-            let output_ref = output_ref.clone();
 
             move |event: SubmitEvent| {
                 event.prevent_default();
@@ -79,48 +118,41 @@ fn article_page(props: &ArticleProps) -> Html {
                                 name: links[value].clone()
                             });
                         } else {
-                            let message = format!("\n{}\nMax page number is {}\nTry again...", 
-                                                  &value, links.len());
-                            add_text_to_console(output_ref.clone(), message.as_str());
+//                            let message = format!("\n{}\nMax page number is {}\nTry again...", 
+//                                                  &value, links.len());
+ //                           add_text_to_console(output_ref.clone(), message.as_str());
                         }
                     } else {
-                        let message = format!("\n{}\nExpept number is in range 0..{}\nTry again...", 
-                                                  &value, links.len()-1);
-                        add_text_to_console(output_ref.clone(), message.as_str());
+//                        let message = format!("\n{}\nExpept number is in range 0..{}\nTry again...", 
+//                                                  &value, links.len()-1);
+//                        content.borrow_mut().push_str(message.as_str());
+                        //add_text_to_console(output_ref.clone(), message.as_str());
                     }
                     input_text.set("".to_owned());
                 }
             }
-        });
+        })
+    };
 
-        let handle_input = {
-            let input_text = input_text.clone();
-            Callback::from(move |event: InputEvent| {
-                let input = event.target();
-                let input = input.and_then(|t| t.dyn_into::<HtmlInputElement>().ok());
-                let input = input.unwrap();
+    let handle_input = {
+        let input_text = input_text.clone();
+        Callback::from(move |event: InputEvent| {
+            let input = event.target();
+            let input = input.and_then(|t| t.dyn_into::<HtmlInputElement>().ok());
+            let input = input.unwrap();
 
-                input_text.set(input.value());
-            })
-        };
-        let text = &input_text[..].to_owned();
-        html! {
-            <>
-                <pre ref={output_ref}>{page_content.content.clone()}</pre>
-                <p>
-                    <form onsubmit={handle_submit}>
-                        <input ref={input_ref} oninput={handle_input} value={text.clone()} />
-                    </form>
-                </p>
-            </>
-        }
-    } else {
-        html! {
-            <Redirect<Route> to={Route::NotFound}/>
-        }
+            input_text.set(input.value());
+        })
+    };
+    
+    html! {
+        <p>
+            <form onsubmit={handle_submit}>
+                <input ref={input_ref} oninput={handle_input} value={input_text.clone().to_string()} />
+            </form>
+        </p>
     }
 }
-
 fn add_text_to_console(node_ref: NodeRef, text: &str) {
     let console = node_ref
         .cast::<HtmlElement>()

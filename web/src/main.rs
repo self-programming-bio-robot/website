@@ -64,7 +64,7 @@ fn article_page(props: &ArticleProps) -> Html {
             .map(|x| x.to_string())
             .collect();
         html! {
-            <>
+            <div class="wrapper">
                 <ConsoleView 
                     text={content} 
                     after={additional.clone().to_string()} />
@@ -72,7 +72,7 @@ fn article_page(props: &ArticleProps) -> Html {
                     links={links} 
                     on_error={insert_text}
                     on_submit={clear_text} />
-            </>
+            </div>
         }
     } else {
         html! {
@@ -147,12 +147,12 @@ fn console_input(props: &ConsoleInputProps) -> Html {
                             });
                             on_submit.emit(());
                         } else {
-                            let message = format!("\n{}\nMax page number is {}\nTry again...", 
+                            let message = format!("{}\nMax page number is {}\nTry again...\n", 
                                                   &value, links.len());
                             on_error.emit(message);
                         }
                     } else {
-                        let message = format!("\n{}\nExpept number is in range 0..{}\nTry again...", 
+                        let message = format!("{}\nExpept number is in range 0..{}\nTry again...\n", 
                                                   &value, links.len()-1);
                         on_error.emit(message);
                     }
@@ -174,9 +174,13 @@ fn console_input(props: &ConsoleInputProps) -> Html {
     };
     
     html! {
-        <p>
+        <p class="input">
             <form onsubmit={handle_submit}>
-                <input ref={input_ref} oninput={handle_input} value={input_text.clone().to_string()} />
+                <label>{">\u{00a0}"}</label>
+                <input 
+                    ref={input_ref} 
+                    oninput={handle_input} 
+                    value={input_text.clone().to_string()} />
             </form>
         </p>
     }

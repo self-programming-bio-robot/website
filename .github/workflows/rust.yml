@@ -20,6 +20,8 @@ jobs:
       run: cargo test --verbose
     - name: trunk-action
       uses: jetli/trunk-action@v0.4.0
+    - name: Enable wasm target
+      run: rustup target add wasm32-unknown-unknown
     - name: Build web page
       working-directory: web
       run: trunk build --release

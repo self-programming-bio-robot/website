@@ -1,0 +1,29 @@
+name: Rust
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build
+      run: cargo build --verbose
+    - name: Run tests
+      run: cargo test --verbose
+    - name: trunk-action
+      uses: jetli/trunk-action@v0.4.0
+    - name: Build web page
+      working-directory: web
+      run: trunk build --release
+    - name: Deploy to pages
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        folder: web/dist

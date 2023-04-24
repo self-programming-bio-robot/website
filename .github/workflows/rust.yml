@@ -25,6 +25,11 @@ jobs:
     - name: Build web page
       working-directory: web
       run: trunk build --release
+    - name: Create 404 pages
+      uses: canastro/copy-action@0.0.2
+      with:
+        source: web/dist/index.html
+        target: web/dist/404.html
     - name: Deploy to pages
       uses: JamesIves/github-pages-deploy-action@v4
       with:

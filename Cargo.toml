@@ -2,5 +2,6 @@
 members = [
     "core",
     "terminal",
-    "web"
+    "web",
+    "wire_world"
 ]

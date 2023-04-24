@@ -4,7 +4,7 @@ use yew::prelude::*;
 use yew_router::prelude::*;
 use zhdanov_website_core::page_repository::{PageLocalRepository, PageRepository};
 use wasm_bindgen::JsCast;
-use web_sys::{HtmlInputElement, HtmlElement};
+use web_sys::HtmlInputElement;
 
 #[derive(Clone, Routable, PartialEq)]
 enum Route {

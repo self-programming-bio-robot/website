@@ -1,8 +1,10 @@
+use std::collections::HashMap;
 
-#[derive(Debug, PartialEq)]
+
+#[derive(Debug, PartialEq, Clone, Hash, Eq)]
 pub struct Point(usize, usize);
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum CellType {
     EMPTY,
     WIRE,
@@ -27,28 +29,109 @@ pub struct CellChange {
 impl World {
     
     pub fn new(width: usize, height: usize) -> World {
-        todo!()
+        World { 
+            size: (width, height), 
+            next_step: Vec::new(), 
+            map: vec![CellType::EMPTY; (width * height).into()] 
+        }
     }
 
     pub fn add_cell(&mut self, pos: Point, cell_type: CellType) {
-        todo!()
+        if cell_type == CellType::ELECTRON || cell_type == CellType::TAIL {
+            self.next_step.push(pos.clone());
+        }
+        let ind = self.index(&pos);
+        self.map[ind] = cell_type;
     }
 
     pub fn remove_cell(&mut self, pos: Point) {
-        todo!()
+        let ind = self.index(&pos);
+        self.map[ind] = CellType::EMPTY; 
     }
 
-    pub fn get_cells(&self) -> Vec<CellType> {
-        todo!()
+    pub fn get_cells(&self) -> &[CellType] {
+        self.map.as_slice()
     }
 
     pub fn tick(&mut self) -> Vec<CellChange> {
-        todo!()
+        let mut next_step: Vec<Point> = Vec::new();
+        let mut changes = Vec::new();
+        let mut potential_points: HashMap<Point, usize> = HashMap::new();
+        for cell in self.next_step.iter() {
+            let old_state = self.map[self.index(cell)].clone(); 
+            match old_state {
+                CellType::ELECTRON => {
+                    changes.push(CellChange { 
+                        position: cell.clone(), 
+                        old_state, 
+                        new_state: CellType::TAIL 
+                    });
+
+                    let neighbors = self.get_cells_around(cell, &CellType::WIRE);
+                    for neighbor in neighbors  {
+                        let point = potential_points.entry(neighbor).or_insert(0); 
+                        *point += 1;
+                    }
+                },
+                CellType::TAIL => {
+                    changes.push(CellChange { 
+                        position: cell.clone(), 
+                        old_state, 
+                        new_state: CellType::WIRE 
+                    });
+                },
+                _other => (),
+            }    
+        }
+
+        for (point, count) in potential_points {
+            if count == 1 || count == 2 {
+                changes.push(CellChange { 
+                    position: point, 
+                    old_state: CellType::WIRE, 
+                    new_state: CellType::ELECTRON 
+                });
+            }
+        }
+
+        for change in changes.iter() {
+            let ind = self.index(&change.position);
+            self.map[ind] = change.new_state.clone();
+            next_step.push(change.position.clone());
+        }
+
+        self.next_step = next_step;
+        return changes;
+    }
+
+    fn index(&self, point: &Point) -> usize {
+        point.0 * self.size.0 + point.1
+    }
+
+    fn get_cells_around(&self, point: &Point, cell_type: &CellType) -> Vec<Point> {
+        let mut found = Vec::new();
+        let offsets = [(-1, -1), (-1, 0), (-1, 1), 
+                        (0, -1), (0, 1), (1, -1), 
+                        (1, 0), (1, 1)];
+
+        for offset in offsets.iter() {
+            let pos = Point(
+                ((point.0 as isize + offset.0 + self.size.1 as isize) as usize) % self.size.1,
+                ((point.1 as isize + offset.1 + self.size.0 as isize) as usize) % self.size.0
+            );
+
+            let ind = self.index(&pos);
+            if cell_type.eq(&self.map[ind]) {
+                found.push(pos);
+            }
+        }
+
+        found
     }
 }
 
 #[cfg(test)]
-mod Test {
+mod test {
     use super::*;
 
     #[test]
@@ -139,5 +222,26 @@ mod Test {
                 _other => ()
             }
         }
+    }
+
+    #[test]
+    fn test_index() {
+        let world = World::new(4, 7);
+
+        let mut test_case = 0;
+        for j in 0..7 {
+            for i in 0..4 {
+                let ind = world.index(dbg!(&Point(j, i)));
+                assert_eq!(test_case, ind);
+                test_case += 1;
+            }
+        }
+    }
+    
+    #[test]
+    fn test_get_neighbors() {
+        let world = World::new(4, 4);
+        let neighbors = world.get_cells_around(&Point(0, 0), &CellType::EMPTY);
+        assert_eq!(8, neighbors.len());
     }
 }

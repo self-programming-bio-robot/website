@@ -1,8 +1,11 @@
-use std::rc::Rc;
+pub mod wire_world;
+pub mod components;
 
+use std::rc::Rc;
 use yew::prelude::*;
 use yew_router::prelude::*;
 use zhdanov_website_core::page_repository::{PageLocalRepository, PageRepository};
+use wire_world::WireWorld;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlInputElement;
 
@@ -15,6 +18,8 @@ enum Route {
     NotFound,
     #[at("/pages/:name")]
     Page { name: String },
+    #[at("/wire-world")]
+    WireWorld,
 }
 
 #[derive(Properties, PartialEq, Clone)]
@@ -33,6 +38,9 @@ fn router(route: Route) -> Html {
         },
         Route::Page { name } => html! { 
             <ArticlePage name={name} /> 
+        },
+        Route::WireWorld => html! { 
+            <WireWorld />
         },
     }
 }

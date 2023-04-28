@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 
 #[derive(Debug, PartialEq, Clone, Hash, Eq)]
-pub struct Point(usize, usize);
+pub struct Point(pub usize, pub usize);
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum CellType {
@@ -12,7 +12,7 @@ pub enum CellType {
     TAIL
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct World {
     size: (usize, usize),
     next_step: Vec<Point>,

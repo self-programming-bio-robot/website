@@ -4,6 +4,7 @@ use std::rc::Rc;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlCanvasElement;
 use yew::{html::ChildrenRenderer, prelude::*};
+use yew_router::switch::_SwitchProps::render;
 
 /*
  * Base on https://github.com/cxgreat2014/Yew-Canvas.rs
@@ -44,10 +45,15 @@ pub fn canvas<CanvasContext, T>(props: &Props<T>) -> Html
                     ));
                 }
 
-                Interval::new(1_000, move || {
-                    let mut rander = rander.borrow_mut();
-                    rander.rand(&canvas);
-                }).forget();
+                {
+                    let rand = rander.clone();
+                    let mut rand = rand.borrow_mut();
+                    rand.rand(&canvas, true);
+                    Interval::new(100, move || {
+                        let mut rander = rander.borrow_mut();
+                        rander.rand(&canvas, false);
+                    }).forget();
+                }
             }
 
             || ()
@@ -73,7 +79,7 @@ pub fn canvas<CanvasContext, T>(props: &Props<T>) -> Html
 }
 
 pub trait WithRander: Clone + PartialEq {
-    fn rand(&mut self, canvas: &HtmlCanvasElement);
+    fn rand(&mut self, canvas: &HtmlCanvasElement, full: bool);
 }
 
 #[derive(Properties, Clone, PartialEq)]

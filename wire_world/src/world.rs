@@ -19,11 +19,17 @@ pub struct World {
     map: Vec<CellType>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CellChange {
     pub position: Point,
     pub old_state: CellType,
     pub new_state: CellType,
+}
+
+#[derive(Debug, Clone)]
+pub struct Cell {
+    pub position: Point,
+    pub cell_type: CellType,
 }
 
 impl World {
@@ -49,8 +55,14 @@ impl World {
         self.map[ind] = CellType::EMPTY; 
     }
 
-    pub fn get_cells(&self) -> &[CellType] {
-        self.map.as_slice()
+    pub fn get_cells(&self) -> Vec<Cell> {
+        let cells = self.map.iter().enumerate().map(|(i, cell_type)| {
+            Cell {
+                position: Point(i / self.size.0, i % self.size.0),
+                cell_type: cell_type.clone(),
+            }
+        }).collect::<Vec<Cell>>();
+        cells
     }
 
     pub fn tick(&mut self) -> Vec<CellChange> {
@@ -167,9 +179,9 @@ mod test {
          world.add_cell(Point(0, 0), CellType::WIRE);
          world.add_cell(Point(0, 1), CellType::ELECTRON);
          world.add_cell(Point(0, 2), CellType::TAIL);
-         assert_eq!(world.get_cells()[0], CellType::WIRE);
-         assert_eq!(world.get_cells()[1], CellType::ELECTRON);
-         assert_eq!(world.get_cells()[2], CellType::TAIL);
+         assert_eq!(world.get_cells()[0].cell_type, CellType::WIRE);
+         assert_eq!(world.get_cells()[1].cell_type, CellType::ELECTRON);
+         assert_eq!(world.get_cells()[2].cell_type, CellType::TAIL);
     }
 
     #[test]
@@ -181,7 +193,7 @@ mod test {
         assert_eq!(change.position, Point(0,0));
         assert_eq!(change.old_state, CellType::ELECTRON);
         assert_eq!(change.new_state, CellType::TAIL);
-        assert_eq!(world.get_cells()[0], CellType::TAIL);
+        assert_eq!(world.get_cells()[0].cell_type, CellType::TAIL);
     }
     
     #[test]
@@ -193,7 +205,7 @@ mod test {
         assert_eq!(change.position, Point(0,0));
         assert_eq!(change.old_state, CellType::TAIL);
         assert_eq!(change.new_state, CellType::WIRE);
-        assert_eq!(world.get_cells()[0], CellType::WIRE); 
+        assert_eq!(world.get_cells()[0].cell_type, CellType::WIRE);
     }
 
     #[test]

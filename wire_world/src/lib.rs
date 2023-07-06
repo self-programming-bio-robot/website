@@ -1,8 +1,10 @@
 pub mod world;
+pub mod control;
 
 use bevy::app::App;
 use bevy::DefaultPlugins;
 use bevy::prelude::{Camera2dBundle, Commands, NextState, Plugin, ResMut, States};
+use crate::control::ControlPlugin;
 use crate::world::resources::LevelConfig;
 use crate::world::WorldPlugin;
 
@@ -21,6 +23,7 @@ impl Plugin for GamePlugin {
         app.add_plugins(DefaultPlugins)
             .add_state::<GameState>()
             .add_plugin(WorldPlugin)
+            .add_plugin(ControlPlugin)
             .add_startup_system(init);
     }
 }
@@ -35,3 +38,4 @@ pub fn init(
     level_config.level_name = Some("level1.level".to_owned());
     next_state.set(GameState::Level);
 }
+

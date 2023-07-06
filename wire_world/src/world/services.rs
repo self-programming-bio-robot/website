@@ -1,7 +1,8 @@
 use std::ops::Mul;
 use bevy::asset::{AssetEvent, AssetServer};
 use bevy::log::error;
-use bevy::prelude::{Added, Assets, Camera2dBundle, Changed, Color, Commands, default, Entity, EventReader, Handle, NextState, Query, Res, ResMut, Sprite, SpriteBundle, Time, Transform, Vec2, Vec3, With};
+use bevy::prelude::{Added, Assets, Camera2dBundle, Changed, Color, Commands, default, Entity, EventReader, EventWriter, Handle, info, MouseButton, NextState, Query, Res, ResMut, Sprite, SpriteBundle, Time, Transform, Vec2, Vec3, With};
+use crate::control::{ClickEvent, MoveCamera};
 use crate::GameState;
 use crate::world::CELL_SIZE;
 use crate::world::components::{Cell, Change, NextUpdate, Point};
@@ -25,12 +26,21 @@ pub fn load_level(
     mut commands: Commands,
     mut levels_events: EventReader<AssetEvent<World>>,
     levels: Res<Assets<World>>,
+    mut camera_events: EventWriter<MoveCamera>,
 ) {
     for event in levels_events.iter() {
         match event {
             AssetEvent::Created { handle } => {
                 if let Some(level) = levels.get(handle) {
                     let world_state = spawn_level(level, &mut commands);
+                    let pos = Vec2::new(
+                        CELL_SIZE * level.size.0 as f32,
+                        -CELL_SIZE * level.size.1 as f32,
+                    ) * 0.5;
+                    camera_events.send(MoveCamera {
+                        pos,
+                        force: true
+                    });
                     commands.insert_resource(world_state);
                 }
             }
@@ -104,6 +114,36 @@ pub fn update_cells(
                 }
                 _others => Color::LIME_GREEN,
             };
+        }
+    }
+}
+
+pub fn handle_clicks(
+    mut commands: Commands,
+    mut click_events: EventReader<ClickEvent>,
+    world: Option<Res<WorldState>>,
+) {
+    if let Some(world) = world {
+        let half_cell_size = CELL_SIZE / 2.;
+
+        for event in click_events.iter() {
+            let x = (event.pos.x + half_cell_size) / CELL_SIZE;
+            let y = (-event.pos.y + half_cell_size) / CELL_SIZE;
+
+            if x < 0. || x >= world.size.0 as f32 || y < 0. || y >= world.size.1 as f32 {
+                continue;
+            }
+
+            let x = x.trunc() as usize;
+            let y = y.trunc() as usize;
+            let cell = world.get_cell(&Point(x, y));
+
+            commands.entity(cell).insert(Change(
+                match event.button {
+                    MouseButton::Left => WIRE,
+                    _others => ELECTRON,
+                })
+            );
         }
     }
 }

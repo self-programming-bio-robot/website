@@ -1,6 +1,6 @@
 use anyhow::Error;
 use bevy::prelude::*;
-use bevy::reflect::TypeUuid;
+use bevy::reflect::{TypePath, TypeUuid};
 use crate::world::components::{CellType, Point};
 use crate::world::components::CellType::{ELECTRON, EMPTY, WIRE};
 
@@ -10,7 +10,7 @@ pub struct WorldState {
     pub map: Vec<Entity>,
 }
 
-#[derive(TypeUuid)]
+#[derive(TypeUuid, TypePath)]
 #[uuid = "e51081d0-6168-4881-a1c6-4249b2000d7f"]
 pub struct World {
     pub size: (usize, usize),

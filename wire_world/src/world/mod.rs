@@ -23,11 +23,13 @@ impl Plugin for WorldPlugin {
                 timer: Timer::new(Duration::from_secs(1), TimerMode::Repeating)
             })
             .insert_resource(LevelConfig::empty())
-            .add_system(init_level.in_schedule(OnEnter(GameState::Level)))
-            .add_system(load_level.in_set(OnUpdate(GameState::Level)))
-            .add_system(find_cell_to_update.in_set(OnUpdate(GameState::Level)))
-            .add_system(update_cells.in_set(OnUpdate(GameState::Level)))
-            .add_system(handle_clicks.in_set(OnUpdate(GameState::Level)))
+            .add_systems(OnEnter(GameState::Level), init_level)
+            .add_systems(Update, (
+                load_level,
+                find_cell_to_update,
+                update_cells,
+                handle_clicks
+            ).run_if(in_state(GameState::Level)))
             ;
     }
 }

@@ -4,5 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy = "0.10.1"
+bevy = { git = "https://github.com/bevyengine/bevy.git" }
 anyhow = { version = "1.0" }
+indexmap = { version = "1.9.3" }

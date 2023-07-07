@@ -5,11 +5,13 @@ use crate::GameState;
 
 pub struct ControlPlugin;
 
+#[derive(Event)]
 pub struct ClickEvent {
     pub pos: Vec2,
     pub button: MouseButton,
 }
 
+#[derive(Event)]
 pub struct MoveCamera {
     pub pos: Vec2,
     pub force: bool,
@@ -20,8 +22,9 @@ impl Plugin for ControlPlugin {
         app
             .add_event::<ClickEvent>()
             .add_event::<MoveCamera>()
-            .add_system(handle_click.in_set(OnUpdate(GameState::Level)))
-            .add_system(set_camera_position.in_set(OnUpdate(GameState::Level)))
+            .add_systems(Update, (
+                handle_click, set_camera_position
+            ).run_if(in_state(GameState::Level)))
         ;
     }
 }

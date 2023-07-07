@@ -1,10 +1,12 @@
 pub mod world;
 pub mod control;
+pub mod ui;
 
 use bevy::app::App;
 use bevy::DefaultPlugins;
 use bevy::prelude::{Camera2dBundle, Commands, NextState, Plugin, ResMut, States};
 use crate::control::ControlPlugin;
+use crate::ui::UiPlugin;
 use crate::world::resources::LevelConfig;
 use crate::world::WorldPlugin;
 
@@ -24,6 +26,7 @@ impl Plugin for GamePlugin {
             .add_state::<GameState>()
             .add_plugin(WorldPlugin)
             .add_plugin(ControlPlugin)
+            .add_plugin(UiPlugin)
             .add_startup_system(init);
     }
 }

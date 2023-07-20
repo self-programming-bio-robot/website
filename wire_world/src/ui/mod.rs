@@ -1,4 +1,5 @@
 pub mod level;
+pub mod component;
 
 use bevy::app::App;
 use bevy::prelude::*;

@@ -24,9 +24,9 @@ impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(DefaultPlugins)
             .add_state::<GameState>()
-            .add_plugin(WorldPlugin)
-            .add_plugin(ControlPlugin)
-            .add_plugin(UiPlugin)
+            .add_plugins(WorldPlugin)
+            .add_plugins(ControlPlugin)
+            .add_plugins(UiPlugin)
             .add_startup_system(init);
     }
 }

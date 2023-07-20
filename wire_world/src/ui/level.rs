@@ -1,5 +1,8 @@
+use std::time::Duration;
 use bevy::prelude::*;
 use bevy::ui::widget::UiImageSize;
+use crate::ui::component::{ButtonState, LevelActions};
+use crate::world::resources::Counter;
 
 const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
 const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
@@ -7,22 +10,45 @@ const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
 
 pub fn button_system(
     mut interaction_query: Query<
-        (&Interaction, &mut BackgroundColor, &Children),
+        (&Interaction, &mut BackgroundColor, &mut ButtonState, &LevelActions),
         (Changed<Interaction>, With<Button>),
     >,
+    mut counter: ResMut<Counter>,
 ) {
-    for (interaction, mut color, children) in &mut interaction_query {
+    for (interaction, mut color, mut state, action)
+    in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
                 *color = PRESSED_BUTTON.into();
             }
             Interaction::Hovered => {
                 *color = HOVERED_BUTTON.into();
+                if (state.prev_interaction == Interaction::Pressed) {
+                    button_click(action, counter.as_mut());
+                }
             }
             Interaction::None => {
                 *color = NORMAL_BUTTON.into();
             }
         }
+        state.prev_interaction = interaction.clone();
+    }
+}
+
+fn button_click(action: &LevelActions, counter: &mut Counter) {
+    match action {
+        LevelActions::Menu => {
+            info!("goto menu");
+        },
+        LevelActions::Pause => {
+            counter.timer.pause();
+            info!("Pause");
+        },
+        LevelActions::Play(speed) => {
+            counter.timer.unpause();
+            counter.timer.set_duration(Duration::from_secs_f32(*speed));
+            info!("set speed {}", speed);
+        },
     }
 }
 
@@ -59,7 +85,7 @@ pub fn setup(
                     ..default()
                 }
             ).with_children(|parent| {
-                spawn_button(parent, texture_atlas_handle.clone(), 0);
+                spawn_button(parent, texture_atlas_handle.clone(), 0, LevelActions::Menu);
             });
             parent.spawn(
                 NodeBundle {
@@ -73,11 +99,10 @@ pub fn setup(
                     ..default()
                 }
             ).with_children(|parent| {
-                spawn_button(parent,texture_atlas_handle.clone(), 1);
-                spawn_button(parent,  texture_atlas_handle.clone(), 2);
-                spawn_button(parent, texture_atlas_handle.clone(), 3);
-                spawn_button(parent, texture_atlas_handle.clone(), 4);
-
+                spawn_button(parent, texture_atlas_handle.clone(), 1, LevelActions::Play(1.));
+                spawn_button(parent, texture_atlas_handle.clone(), 2, LevelActions::Pause);
+                spawn_button(parent, texture_atlas_handle.clone(), 3, LevelActions::Play(0.5));
+                spawn_button(parent, texture_atlas_handle.clone(), 4, LevelActions::Play(0.125));
             });
         });
 }
@@ -86,28 +111,33 @@ fn spawn_button(
     parent: &mut ChildBuilder,
     atlas_handle: Handle<TextureAtlas>,
     index: usize,
+    action: LevelActions,
 ) {
     parent
-        .spawn(ButtonBundle {
-            style: Style {
-                width: Val::Px(65.0),
-                height: Val::Px(65.0),
-                // horizontally center child text
-                justify_content: JustifyContent::Center,
-                // vertically center child text
-                align_items: AlignItems::Center,
+        .spawn((
+            ButtonBundle {
+                style: Style {
+                    width: Val::Px(65.0),
+                    height: Val::Px(65.0),
+                    // horizontally center child text
+                    justify_content: JustifyContent::Center,
+                    // vertically center child text
+                    align_items: AlignItems::Center,
+                    ..default()
+                },
+                background_color: NORMAL_BUTTON.into(),
                 ..default()
             },
-            background_color: NORMAL_BUTTON.into(),
-            ..default()
-        })
+            ButtonState::default(),
+            action
+        ))
         .with_children(|parent| {
             parent.spawn(AtlasImageBundle {
                 texture_atlas: atlas_handle,
                 texture_atlas_image: UiTextureAtlasImage {
                     index,
                     flip_x: false,
-                    flip_y: false
+                    flip_y: false,
                 },
                 style: Style {
                     width: Val::Percent(50.),

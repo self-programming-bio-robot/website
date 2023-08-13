@@ -1,6 +1,8 @@
 use std::time::Duration;
+use bevy::app::AppExit;
 use bevy::prelude::*;
 use bevy::ui::widget::UiImageSize;
+use crate::control::ExitGame;
 use crate::ui::component::{ButtonState, LevelActions};
 use crate::world::resources::Counter;
 
@@ -14,6 +16,7 @@ pub fn button_system(
         (Changed<Interaction>, With<Button>),
     >,
     mut counter: ResMut<Counter>,
+    mut exit: EventWriter<ExitGame>
 ) {
     for (interaction, mut color, mut state, action)
     in &mut interaction_query {
@@ -24,7 +27,7 @@ pub fn button_system(
             Interaction::Hovered => {
                 *color = HOVERED_BUTTON.into();
                 if (state.prev_interaction == Interaction::Pressed) {
-                    button_click(action, counter.as_mut());
+                    button_click(action, counter.as_mut(), &mut exit);
                 }
             }
             Interaction::None => {
@@ -35,10 +38,15 @@ pub fn button_system(
     }
 }
 
-fn button_click(action: &LevelActions, counter: &mut Counter) {
+fn button_click(
+    action: &LevelActions,
+    counter: &mut Counter,
+    exit: &mut EventWriter<ExitGame>
+) {
     match action {
         LevelActions::Menu => {
             info!("goto menu");
+            exit.send(ExitGame);
         },
         LevelActions::Pause => {
             counter.timer.pause();

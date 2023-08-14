@@ -15,6 +15,14 @@ pub struct WorldState {
 pub struct World {
     pub size: (usize, usize),
     pub map: Vec<CellType>,
+    pub exercises: Vec<Exercise>,
+}
+
+pub struct Exercise {
+    pub description: String,
+    pub timeout: usize,
+    pub spawns: Vec<(Point, usize)>,
+    pub outputs: Vec<(Point, usize, usize)>,
 }
 
 #[derive(Resource)]
@@ -43,10 +51,9 @@ impl World {
         let height: usize = sizes.next().ok_or(Error::msg("Not found height"))?.parse()?;
 
         let mut map: Vec<CellType> = Vec::with_capacity(width * height);
-        for (i, line) in lines.enumerate() {
-            if i >= height {
-                break
-            }
+        for i in 0..height {
+            let line = lines.next().ok_or(Error::msg("File is broken"))?;
+
             for (j, cell) in line.split(" ").enumerate() {
                 if j >= width {
                     break
@@ -62,10 +69,47 @@ impl World {
             }
         }
 
+        let exercise_count: usize = lines.next()
+            .ok_or(Error::msg("Not found count of exercises"))?.parse()?;
+        let mut exercises: Vec<Exercise> = Vec::with_capacity(exercise_count);
+
+        for i in 0..exercise_count {
+            let description = lines.next()
+                .ok_or(Error::msg(format!("Not found description of exercise {i}")))?
+                .to_owned();
+            let timeout: usize = lines.next()
+                .ok_or(Error::msg(format!("Not found timeout of exercise {i}")))?
+                .parse()?;
+
+            let spawns_count: usize = lines.next()
+                .ok_or(Error::msg("Not found count of electron spawns"))?.parse()?;
+            let mut spawns: Vec<(Point, usize)> = Vec::with_capacity(spawns_count);
+            for _ in 0..spawns_count {
+                spawns.push(
+                    Self::parse_electron_spawn(lines.next()
+                            .ok_or(Error::msg("Not found line with electron spawn"))?
+                    )?
+                );
+            }
+
+            let outputs_count: usize = lines.next()
+                .ok_or(Error::msg("Not found count of outputs"))?.parse()?;
+            let mut outputs: Vec<(Point, usize, usize)> = Vec::with_capacity(outputs_count);
+            for _ in 0..outputs_count {
+                outputs.push(
+                    Self::parse_output(lines.next()
+                        .ok_or(Error::msg("Not found line with output"))?
+                    )?
+                );
+            }
+            exercises.push(Exercise { description, timeout, spawns, outputs });
+        }
+
         Ok(
             World {
                 size: (width, height),
                 map,
+                exercises
             }
         )
     }
@@ -76,6 +120,32 @@ impl World {
 
     pub fn get_cell(&self, point: &Point) -> CellType {
         self.map[self.index(point)].clone()
+    }
+
+    fn parse_electron_spawn(line: &str) -> Result<(Point, usize), Error> {
+        let mut sizes = line.split(" ");
+        let instant: usize = sizes.next()
+            .ok_or(Error::msg("Not found instant of electron spawn"))?.parse()?;
+        let x: usize = sizes.next()
+            .ok_or(Error::msg("Not found x of electron spawn"))?.parse()?;
+        let y: usize = sizes.next()
+            .ok_or(Error::msg("Not found y of electron spawn"))?.parse()?;
+
+        Ok((Point(x, y), instant))
+    }
+
+    fn parse_output(line: &str) -> Result<(Point, usize, usize), Error> {
+        let mut sizes = line.split(" ");
+        let from: usize = sizes.next()
+            .ok_or(Error::msg("Not found from instant of output"))?.parse()?;
+        let until: usize = sizes.next()
+            .ok_or(Error::msg("Not found until instant of output"))?.parse()?;
+        let x: usize = sizes.next()
+            .ok_or(Error::msg("Not found x of output"))?.parse()?;
+        let y: usize = sizes.next()
+            .ok_or(Error::msg("Not found y of output"))?.parse()?;
+
+        Ok((Point(x, y), from, until))
     }
 }
 

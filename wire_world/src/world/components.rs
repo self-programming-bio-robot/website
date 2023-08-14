@@ -7,6 +7,19 @@ pub struct Cell {
     pub cell_type: CellType,
 }
 
+#[derive(Component, Debug, Clone)]
+pub struct ElectronSpawn {
+    pub position: Point,
+    pub instant: usize,
+}
+
+#[derive(Component, Debug, Clone)]
+pub struct ExpectedOutput {
+    pub position: Point,
+    pub from: usize,
+    pub until: usize,
+}
+
 #[derive(Debug, PartialEq, Clone)]
 pub enum CellType {
     EMPTY(bool),

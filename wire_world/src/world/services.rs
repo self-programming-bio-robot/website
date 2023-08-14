@@ -66,20 +66,22 @@ pub fn find_cell_to_update(
                 let count_electron_around = world.get_cells_around(&cell.position)
                     .iter()
                     .map(|id| cells.get(*id).unwrap().1)
-                    .filter(|cell| cell.cell_type == ELECTRON)
+                    .filter(|cell|
+                        cell.cell_type == ELECTRON(true) || cell.cell_type == ELECTRON(false)
+                    )
                     .count();
 
                 match cell.cell_type.clone() {
-                    WIRE => {
+                    WIRE(fixed) => {
                         if count_electron_around == 1 || count_electron_around == 2 {
-                            commands.entity(id).insert(Change(ELECTRON));
+                            commands.entity(id).insert(Change(ELECTRON(fixed)));
                         }
                     }
-                    TAIL => {
-                        commands.entity(id).insert(Change(WIRE));
+                    TAIL(fixed) => {
+                        commands.entity(id).insert(Change(WIRE(fixed)));
                     }
-                    ELECTRON => {
-                        commands.entity(id).insert(Change(TAIL));
+                    ELECTRON(fixed) => {
+                        commands.entity(id).insert(Change(TAIL(fixed)));
                     }
                     _others => {}
                 }
@@ -97,7 +99,7 @@ pub fn update_cells(
         for (_id, mut cell, mut sprite, changed) in cells.iter_mut() {
             cell.cell_type = changed.0.clone();
             sprite.color = match cell.cell_type.clone() {
-                ELECTRON => {
+                ELECTRON(_) => {
                     commands.entity(world.map[world.index(&cell.position)]).insert(NextUpdate::default());
                     let cells_around = world.get_cells_around(&cell.position);
 
@@ -107,8 +109,8 @@ pub fn update_cells(
 
                     Color::YELLOW
                 }
-                WIRE => Color::BLACK,
-                TAIL => {
+                WIRE(_) => Color::BLACK,
+                TAIL(_) => {
                     commands.entity(world.map[world.index(&cell.position)]).insert(NextUpdate::default());
                     Color::RED
                 }
@@ -122,6 +124,7 @@ pub fn handle_clicks(
     mut commands: Commands,
     mut click_events: EventReader<ClickEvent>,
     world: Option<Res<WorldState>>,
+    cells: Query<&mut Cell>,
 ) {
     if let Some(world) = world {
         let half_cell_size = CELL_SIZE / 2.;
@@ -137,13 +140,16 @@ pub fn handle_clicks(
             let x = x.trunc() as usize;
             let y = y.trunc() as usize;
             let cell = world.get_cell(&Point(x, y));
-
-            commands.entity(cell).insert(Change(
-                match event.button {
-                    MouseButton::Left => WIRE,
-                    _others => ELECTRON,
-                })
-            );
+            if let Ok(cell_type) = cells.get(cell) {
+                if !cell_type.is_fixed() {
+                    commands.entity(cell).insert(Change(
+                        match event.button {
+                            MouseButton::Left => WIRE(false),
+                            _others => ELECTRON(false),
+                        })
+                    );
+                }
+            }
         }
     }
 }
@@ -157,8 +163,8 @@ fn spawn_level(
         map: Vec::with_capacity(world.size.0 * world.size.1),
     };
 
-    for x in 0..world.size.0 {
-        for y in 0..world.size.1 {
+    for y in 0..world.size.1 {
+        for x in 0..world.size.0 {
             let pos = Point(x, y);
             let cell_type = world.get_cell(&pos);
             let cell = Cell {
@@ -171,9 +177,9 @@ fn spawn_level(
                 SpriteBundle {
                     sprite: Sprite {
                         color: match cell_type.clone() {
-                            ELECTRON => Color::YELLOW,
-                            WIRE => Color::BLACK,
-                            TAIL => Color::RED,
+                            ELECTRON(_) => Color::YELLOW,
+                            WIRE(_) => Color::BLACK,
+                            TAIL(_) => Color::RED,
                             _others => Color::LIME_GREEN,
                         },
                         custom_size: Some(Vec2::new(CELL_SIZE, CELL_SIZE)),
@@ -198,7 +204,7 @@ fn spawn_level(
         for y in 0..world.size.1 {
             let point = Point(x, y);
             match world.get_cell(&point).clone() {
-                ELECTRON => {
+                ELECTRON(_) => {
                     commands.entity(world_state.map[world.index(&point)])
                         .insert(NextUpdate::default());
                     let cells_around = world_state.get_cells_around(&point);
@@ -207,7 +213,7 @@ fn spawn_level(
                         commands.entity(*cell).insert(NextUpdate::default());
                     }
                 }
-                TAIL => {
+                TAIL(_) => {
                     commands.entity(world_state.map[world.index(&point)])
                         .insert(NextUpdate::default());
                 }

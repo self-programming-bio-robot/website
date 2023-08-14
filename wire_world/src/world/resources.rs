@@ -52,9 +52,12 @@ impl World {
                     break
                 }
                 map.push(match cell {
-                    "a" => ELECTRON,
-                    "w" => WIRE,
-                    _others => EMPTY,
+                    "a" => ELECTRON(false),
+                    "w" => WIRE(false),
+                    "A" => ELECTRON(true),
+                    "W" => WIRE(true),
+                    "E" => EMPTY(true),
+                    _others => EMPTY(false),
                 });
             }
         }
@@ -78,7 +81,7 @@ impl World {
 
 impl WorldState {
     pub fn index(&self, point: &Point) -> usize {
-        point.0 * self.size.0 + point.1
+        point.1 * self.size.0 + point.0
     }
 
     pub fn get_cell(&self, point: &Point) -> Entity {
@@ -93,8 +96,8 @@ impl WorldState {
 
         for offset in OFFSETS.iter() {
             let pos = Point(
-                ((point.0 as isize + offset.0 + self.size.1 as isize) as usize) % self.size.1,
-                ((point.1 as isize + offset.1 + self.size.0 as isize) as usize) % self.size.0,
+                ((point.0 as isize + offset.0 + self.size.0 as isize) as usize) % self.size.0,
+                ((point.1 as isize + offset.1 + self.size.1 as isize) as usize) % self.size.1,
             );
 
             found.push(self.get_cell(&pos));

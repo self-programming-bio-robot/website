@@ -3,7 +3,7 @@ use bevy::app::{App, Plugin};
 use bevy::prelude::*;
 use crate::GameState;
 use crate::world::resources::{Counter, LevelConfig, World, WorldState};
-use crate::world::services::{find_cell_to_update, handle_clicks, init_level, load_level, update_cells};
+use crate::world::services::{find_cell_to_update, handle_clicks, handle_exercises, handle_outputs, init_level, load_level, spawn_electron, update_cells};
 use crate::world::world_loader::WorldLoader;
 
 pub mod components;
@@ -28,7 +28,10 @@ impl Plugin for WorldPlugin {
                 load_level,
                 find_cell_to_update,
                 update_cells,
-                handle_clicks
+                handle_clicks,
+                spawn_electron,
+                handle_outputs,
+                handle_exercises
             ).run_if(in_state(GameState::Level)))
             ;
     }

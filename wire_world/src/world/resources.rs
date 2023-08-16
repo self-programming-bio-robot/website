@@ -15,10 +15,10 @@ pub struct WorldState {
 pub struct World {
     pub size: (usize, usize),
     pub map: Vec<CellType>,
-    pub exercises: Vec<Exercise>,
+    pub exercises: Vec<ExerciseData>,
 }
 
-pub struct Exercise {
+pub struct ExerciseData {
     pub description: String,
     pub timeout: usize,
     pub spawns: Vec<(Point, usize)>,
@@ -71,7 +71,7 @@ impl World {
 
         let exercise_count: usize = lines.next()
             .ok_or(Error::msg("Not found count of exercises"))?.parse()?;
-        let mut exercises: Vec<Exercise> = Vec::with_capacity(exercise_count);
+        let mut exercises: Vec<ExerciseData> = Vec::with_capacity(exercise_count);
 
         for i in 0..exercise_count {
             let description = lines.next()
@@ -102,7 +102,7 @@ impl World {
                     )?
                 );
             }
-            exercises.push(Exercise { description, timeout, spawns, outputs });
+            exercises.push(ExerciseData { description, timeout, spawns, outputs });
         }
 
         Ok(

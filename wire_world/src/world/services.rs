@@ -1,19 +1,23 @@
+use std::mem::swap;
 use std::ops::Mul;
 use bevy::asset::{AssetEvent, AssetServer};
 use bevy::log::error;
-use bevy::prelude::{Added, Assets, Camera2dBundle, Changed, Color, Commands, default, Entity, EventReader, EventWriter, Handle, info, MouseButton, NextState, Query, Res, ResMut, Sprite, SpriteBundle, Time, Transform, Vec2, Vec3, With};
+use bevy::prelude::{Added, Assets, BuildChildren, Camera2dBundle, Changed, Color, Commands, debug, default, Entity, EventReader, EventWriter, Handle, info, MouseButton, NextState, Query, Res, ResMut, Sprite, SpriteBundle, Time, Transform, Vec2, Vec3, With};
 use crate::control::{ClickEvent, MoveCamera};
 use crate::GameState;
 use crate::world::CELL_SIZE;
-use crate::world::components::{Cell, Change, NextUpdate, Point};
+use crate::world::components::{Cell, Change, ElectronSpawn, Exercise, ExpectedOutput, NextUpdate, OutputStatus, Point};
 use crate::world::components::CellType::{ELECTRON, EMPTY, TAIL, WIRE};
-use crate::world::resources::{Counter, LevelConfig, World, WorldState};
+use crate::world::components::OutputStatus::{Fail, Inactive, Success, Waiting};
+use crate::world::resources::{Counter, ExerciseData, LevelConfig, World, WorldState};
 
 pub fn init_level(
     mut next_state: ResMut<NextState<GameState>>,
     level_config: Res<LevelConfig>,
     assets: Res<AssetServer>,
+    mut counter: ResMut<Counter>,
 ) {
+    counter.timer.pause();
     if let Some(level_name) = level_config.level_name.clone() {
         let _ = assets.load_untyped(level_name);
     } else {
@@ -39,7 +43,7 @@ pub fn load_level(
                     ) * 0.5;
                     camera_events.send(MoveCamera {
                         pos,
-                        force: true
+                        force: true,
                     });
                     commands.insert_resource(world_state);
                 }
@@ -56,10 +60,15 @@ pub fn find_cell_to_update(
     updating_cells: Query<(Entity, &Cell), With<NextUpdate>>,
     time: Res<Time>,
     world: Option<Res<WorldState>>,
+    mut exercises: Query<&mut Exercise>,
 ) {
     if let Some(world) = world {
         let timer = counter.timer.tick(time.delta());
         if timer.finished() {
+            if let Ok(mut exercise) = exercises.get_single_mut() {
+                exercise.ticks += 1;
+            }
+
             for (id, cell) in updating_cells.iter() {
                 commands.entity(id).remove::<NextUpdate>();
 
@@ -154,6 +163,79 @@ pub fn handle_clicks(
     }
 }
 
+pub fn spawn_electron(
+    mut commands: Commands,
+    exercises: Query<&Exercise, Changed<Exercise>>,
+    spawns: Query<&ElectronSpawn>,
+    world: Option<Res<WorldState>>,
+    cells: Query<&mut Cell>,
+) {
+    if let Some(world) = world {
+        if let Ok(exercise) = exercises.get_single() {
+            info!("exercise tick {}", exercise.ticks);
+
+            for spawn in spawns.iter() {
+                info!("spawn is excepting {}", spawn.instant);
+                if spawn.instant == exercise.ticks {
+                    let cell = world.get_cell(&spawn.position);
+                    if let Ok(cell_type) = cells.get(cell) {
+                        commands.entity(cell).insert(Change(ELECTRON(cell_type.is_fixed())));
+                    }
+                }
+            }
+        }
+    }
+}
+
+pub fn handle_outputs(
+    mut outputs: Query<&mut ExpectedOutput>,
+    exercises: Query<&Exercise, Changed<Exercise>>,
+    world: Option<Res<WorldState>>,
+    cells: Query<&mut Cell>,
+) {
+    if let Some(world) = world {
+        if let Ok(exercise) = exercises.get_single() {
+            for mut output in outputs.iter_mut() {
+                if exercise.ticks < output.from {
+                    output.status = Inactive;
+                } else if exercise.ticks >= output.from && exercise.ticks < output.until {
+                    if output.status == Inactive {
+                        output.status = Waiting;
+                    }
+                    let cell = world.get_cell(&output.position);
+                    if let Ok(cell) = cells.get(cell) {
+                        if let ELECTRON(_) = cell.cell_type {
+                            output.status = Success;
+                        }
+                    }
+                } else if exercise.ticks >= output.until && output.status != Success {
+                    output.status = Fail;
+                }
+            }
+        }
+    }
+}
+
+pub fn handle_exercises(
+    mut counter: ResMut<Counter>,
+    outputs: Query<&ExpectedOutput>,
+    exercises: Query<&Exercise, Changed<Exercise>>,
+) {
+    if let Ok(exercise) = exercises.get_single() {
+        let statues: Vec<OutputStatus> = outputs.iter()
+            .map(|output| output.status.clone()).collect();
+        debug!("statues: {:?}", statues);
+        if outputs.iter().any(|o| o.status == Fail) || exercise.ticks > exercise.timeout {
+            info!("Fail exercise");
+            counter.timer.pause();
+        }
+        if outputs.iter().all(|o| o.status == Success) {
+            info!("Success exercise");
+            counter.timer.pause();
+        }
+    }
+}
+
 fn spawn_level(
     world: &World,
     mut commands: &mut Commands,
@@ -222,5 +304,40 @@ fn spawn_level(
         }
     }
 
+    if let Some(exercise) = world.exercises.get(0) {
+        spawn_exercise(exercise, commands);
+    }
+
     world_state
+}
+
+fn spawn_exercise(
+    exercise: &ExerciseData,
+    mut commands: &mut Commands,
+) {
+    let mut exercise_entity = commands.spawn(
+        Exercise {
+            ticks: 0,
+            timeout: exercise.timeout,
+        }
+    );
+    for spawn in exercise.spawns.iter() {
+        exercise_entity.with_children(|parrent| {
+            parrent.spawn(ElectronSpawn {
+                position: spawn.0.clone(),
+                instant: spawn.1,
+            });
+        });
+    }
+
+    for output in exercise.outputs.iter() {
+        exercise_entity.with_children(|parrent| {
+            parrent.spawn(ExpectedOutput {
+                position: output.0.clone(),
+                from: output.1,
+                until: output.2,
+                status: Inactive,
+            });
+        });
+    }
 }

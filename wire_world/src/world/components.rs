@@ -18,6 +18,14 @@ pub struct ExpectedOutput {
     pub position: Point,
     pub from: usize,
     pub until: usize,
+    pub status: OutputStatus,
+}
+
+#[derive(Component, Debug, Clone)]
+pub struct Exercise {
+    // pub description: Entity,
+    pub ticks: usize,
+    pub timeout: usize,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -47,3 +55,11 @@ pub struct Change(pub CellType);
 
 #[derive(Debug, PartialEq, Clone, Hash, Eq)]
 pub struct Point(pub usize, pub usize);
+
+#[derive(Debug, PartialEq, Clone, Hash, Eq)]
+pub enum OutputStatus {
+    Inactive,
+    Waiting,
+    Success,
+    Fail,
+}

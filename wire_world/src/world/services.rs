@@ -1,8 +1,12 @@
 use std::mem::swap;
 use std::ops::Mul;
+
 use bevy::asset::{AssetEvent, AssetServer};
 use bevy::log::error;
-use bevy::prelude::{Added, Assets, BuildChildren, Camera2dBundle, Changed, Color, Commands, debug, default, Entity, EventReader, EventWriter, Handle, info, MouseButton, NextState, Query, Res, ResMut, Sprite, SpriteBundle, Time, Transform, Vec2, Vec3, With};
+use bevy::prelude::*;
+use bevy::sprite::Anchor::{BottomCenter, TopCenter};
+use bevy::text::{BreakLineOn, Text2dBounds};
+
 use crate::control::{ClickEvent, MoveCamera};
 use crate::GameState;
 use crate::world::CELL_SIZE;
@@ -31,12 +35,13 @@ pub fn load_level(
     mut levels_events: EventReader<AssetEvent<World>>,
     levels: Res<Assets<World>>,
     mut camera_events: EventWriter<MoveCamera>,
+    asset_server: Res<AssetServer>,
 ) {
     for event in levels_events.iter() {
         match event {
             AssetEvent::Created { handle } => {
                 if let Some(level) = levels.get(handle) {
-                    let world_state = spawn_level(level, &mut commands);
+                    let world_state = spawn_level(level, &mut commands, &asset_server);
                     let pos = Vec2::new(
                         CELL_SIZE * level.size.0 as f32,
                         -CELL_SIZE * level.size.1 as f32,
@@ -239,6 +244,7 @@ pub fn handle_exercises(
 fn spawn_level(
     world: &World,
     mut commands: &mut Commands,
+    asset_server: &Res<AssetServer>,
 ) -> WorldState {
     let mut world_state = WorldState {
         size: world.size,
@@ -304,8 +310,9 @@ fn spawn_level(
         }
     }
 
+    let field_size = Vec2::new(world.size.0 as f32 * CELL_SIZE, world.size.1 as f32 * CELL_SIZE);
     if let Some(exercise) = world.exercises.get(0) {
-        spawn_exercise(exercise, commands);
+        spawn_exercise(exercise, commands, asset_server, field_size);
     }
 
     world_state
@@ -314,12 +321,17 @@ fn spawn_level(
 fn spawn_exercise(
     exercise: &ExerciseData,
     mut commands: &mut Commands,
+    asset_server: &Res<AssetServer>,
+    field_size: Vec2,
 ) {
     let mut exercise_entity = commands.spawn(
-        Exercise {
-            ticks: 0,
-            timeout: exercise.timeout,
-        }
+        (
+            Exercise {
+                ticks: 0,
+                timeout: exercise.timeout,
+            },
+            SpatialBundle::default(),
+        )
     );
     for spawn in exercise.spawns.iter() {
         exercise_entity.with_children(|parrent| {
@@ -340,4 +352,42 @@ fn spawn_exercise(
             });
         });
     }
+
+    exercise_entity.with_children(|parrent| {
+        spawn_description(parrent, exercise.description.clone(), asset_server, field_size);
+    });
+}
+
+fn spawn_description(
+    parrent: &mut ChildBuilder,
+    text: String,
+    asset_server: &Res<AssetServer>,
+    field_size: Vec2,
+) {
+    const FONT_SIZE: f32 = 32.0;
+    let lines = text.lines().count() as f32;
+
+    let font = asset_server.load("fonts/FiraSans-Bold.ttf");
+    let text_style = TextStyle {
+        font,
+        font_size: FONT_SIZE,
+        color: Color::WHITE,
+    };
+
+    parrent.spawn(Text2dBundle {
+        text: Text {
+            sections: vec![TextSection::new(
+                text,
+                text_style.clone(),
+            )],
+            alignment: TextAlignment::Center,
+            linebreak_behavior: BreakLineOn::NoWrap,
+        },
+        text_2d_bounds: Text2dBounds {
+            size: Vec2::new(field_size.x, FONT_SIZE * lines),
+        },
+        text_anchor: BottomCenter,
+        transform: Transform::from_translation(Vec3::new(field_size.x / 2.0, FONT_SIZE, 1.0)),
+        ..default()
+    });
 }

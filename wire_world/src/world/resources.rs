@@ -74,9 +74,17 @@ impl World {
         let mut exercises: Vec<ExerciseData> = Vec::with_capacity(exercise_count);
 
         for i in 0..exercise_count {
-            let description = lines.next()
-                .ok_or(Error::msg(format!("Not found description of exercise {i}")))?
-                .to_owned();
+            let mut description = String::new();
+            while let Some(line) = lines.next() {
+                if line.is_empty() {
+                    description.remove(description.len()-1);
+                    break;
+                };
+
+                description.push_str(line);
+                description.push('\n');
+            }
+
             let timeout: usize = lines.next()
                 .ok_or(Error::msg(format!("Not found timeout of exercise {i}")))?
                 .parse()?;

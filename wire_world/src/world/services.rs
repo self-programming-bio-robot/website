@@ -1,11 +1,14 @@
 use std::mem::swap;
 use std::ops::{Add, Mul};
+use std::time::Duration;
 
 use bevy::asset::{AssetEvent, AssetServer};
+use bevy::core_pipeline::clear_color::ClearColorConfig::Custom;
 use bevy::log::error;
 use bevy::prelude::*;
 use bevy::sprite::Anchor::{BottomCenter, TopCenter};
 use bevy::text::{BreakLineOn, Text2dBounds};
+use bevy_tweening::{Animator, EaseFunction, Lens, RepeatStrategy, Tween};
 
 use crate::control::{ClickEvent, MoveCamera};
 use crate::GameState;
@@ -14,6 +17,7 @@ use crate::world::components::{Cell, Change, ElectronSpawn, Exercise, ExpectedOu
 use crate::world::components::CellType::{ELECTRON, EMPTY, TAIL, WIRE};
 use crate::world::components::OutputStatus::{Fail, Inactive, Success, Waiting};
 use crate::world::resources::{Counter, ExerciseData, LevelConfig, World, WorldState};
+use crate::world::tweens::{blink_background, Camera2dLens};
 
 pub fn init_level(
     mut next_state: ResMut<NextState<GameState>>,
@@ -223,20 +227,37 @@ pub fn handle_outputs(
 }
 
 pub fn handle_exercises(
+    mut commands: Commands,
     mut counter: ResMut<Counter>,
     outputs: Query<&ExpectedOutput>,
     exercises: Query<&Exercise, Changed<Exercise>>,
+    camera: Query<Entity, &Camera2d>,
 ) {
     if let Ok(exercise) = exercises.get_single() {
+        let camera = camera.single();
+
         let statues: Vec<OutputStatus> = outputs.iter()
             .map(|output| output.status.clone()).collect();
         debug!("statues: {:?}", statues);
         if outputs.iter().any(|o| o.status == Fail) || exercise.ticks > exercise.timeout {
             info!("Fail exercise");
+            commands.entity(camera)
+                .insert(blink_background(
+                    Duration::from_millis(500),
+                    Color::DARK_GRAY,
+                    Color::RED,
+                ));
             counter.timer.pause();
         }
+
         if outputs.iter().all(|o| o.status == Success) {
             info!("Success exercise");
+            commands.entity(camera)
+                .insert(blink_background(
+                    Duration::from_millis(500),
+                    Color::DARK_GRAY,
+                    Color::GREEN,
+                ));
             counter.timer.pause();
         }
     }

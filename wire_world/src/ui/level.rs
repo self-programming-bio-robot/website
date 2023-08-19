@@ -151,9 +151,7 @@ fn spawn_button(
                 style: Style {
                     width: Val::Px(65.0),
                     height: Val::Px(65.0),
-                    // horizontally center child text
                     justify_content: JustifyContent::Center,
-                    // vertically center child text
                     align_items: AlignItems::Center,
                     ..default()
                 },

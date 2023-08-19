@@ -10,6 +10,7 @@ pub mod components;
 pub mod resources;
 pub mod services;
 pub mod world_loader;
+pub mod tweens;
 
 pub const CELL_SIZE: f32 = 40.;
 

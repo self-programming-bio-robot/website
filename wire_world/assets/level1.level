@@ -8,18 +8,44 @@ e e e e e e e e e e e e e e e e e e e
 E E E E E E E e e w e e E E E E E E E
 E E E E E E E e e W e e E E E E E E E
 E E E E E E E e e e e e E E E E E E E
-1
+4
 Exercise One
 Deliver all signals to all of three receivers
 
-20
-2
+15
+1
 1 3 4
-5 3 4
-6
-0 13 9 1
-0 13 9 7
+3
+0 15 9 1
+0 15 9 7
 0 15 15 4
-13 20 9 1
-13 20 9 7
-15 20 15 4
+Exercise Two
+Deliver all signals to all of three receivers
+
+15
+1
+1 9 1
+3
+0 15 3 4
+0 15 9 7
+0 15 15 4
+Exercise Three
+Deliver all signals to all of three receivers
+
+15
+1
+1 9 7
+3
+0 15 3 4
+0 15 9 1
+0 15 15 4
+Exercise Four
+Deliver all signals to all of three receivers
+
+15
+1
+1 15 4
+3
+0 15 3 4
+0 15 9 1
+0 15 9 7

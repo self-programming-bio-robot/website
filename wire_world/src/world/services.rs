@@ -13,7 +13,7 @@ use bevy_tweening::{Animator, EaseFunction, Lens, RepeatStrategy, Tween};
 use crate::control::{ClickEvent, MoveCamera};
 use crate::GameState;
 use crate::world::CELL_SIZE;
-use crate::world::components::{Cell, Change, ElectronSpawn, Exercise, ExpectedOutput, NextUpdate, OutputStatus, Point};
+use crate::world::components::{Cell, Change, ChangeExercise, ElectronSpawn, Exercise, ExpectedOutput, NextUpdate, OutputStatus, Point};
 use crate::world::components::CellType::{ELECTRON, EMPTY, TAIL, WIRE};
 use crate::world::components::OutputStatus::{Fail, Inactive, Success, Waiting};
 use crate::world::resources::{Counter, ExerciseData, LevelConfig, World, WorldState};
@@ -39,13 +39,13 @@ pub fn load_level(
     mut levels_events: EventReader<AssetEvent<World>>,
     levels: Res<Assets<World>>,
     mut camera_events: EventWriter<MoveCamera>,
-    asset_server: Res<AssetServer>,
+    mut events: EventWriter<ChangeExercise>,
 ) {
     for event in levels_events.iter() {
         match event {
             AssetEvent::Created { handle } => {
                 if let Some(level) = levels.get(handle) {
-                    let world_state = spawn_level(level, &mut commands, &asset_server);
+                    let world_state = spawn_level(level, &mut commands, &mut events);
                     let pos = Vec2::new(
                         CELL_SIZE * level.size.0 as f32,
                         -CELL_SIZE * level.size.1 as f32,
@@ -229,6 +229,7 @@ pub fn handle_outputs(
 pub fn handle_exercises(
     mut commands: Commands,
     mut counter: ResMut<Counter>,
+    mut events: EventWriter<ChangeExercise>,
     outputs: Query<&ExpectedOutput>,
     exercises: Query<&Exercise, Changed<Exercise>>,
     camera: Query<Entity, &Camera2d>,
@@ -248,6 +249,7 @@ pub fn handle_exercises(
                     Color::RED,
                 ));
             counter.timer.pause();
+            events.send(ChangeExercise(0));
         }
 
         if outputs.iter().all(|o| o.status == Success) {
@@ -256,9 +258,9 @@ pub fn handle_exercises(
                 .insert(blink_background(
                     Duration::from_millis(500),
                     Color::DARK_GRAY,
-                    Color::GREEN,
+                    Color::LIME_GREEN,
                 ));
-            counter.timer.pause();
+            events.send(ChangeExercise(exercise.id + 1));
         }
     }
 }
@@ -289,14 +291,72 @@ pub fn outputs_indication(
     }
 }
 
+pub fn change_exercise(
+    mut events: EventReader<ChangeExercise>,
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    world: Option<Res<WorldState>>,
+    exercises: Query<Entity, With<Exercise>>,
+) {
+    if let Some(world) = world {
+        if let Some(ChangeExercise(exercise_id)) = events.iter().next() {
+            info!("Spawn exercise {}", exercise_id);
+            for exercise in exercises.iter() {
+                commands.entity(exercise).despawn_recursive();
+            }
+
+            let field_size = Vec2::new(
+                world.size.0 as f32 * CELL_SIZE,
+                world.size.1 as f32 * CELL_SIZE,
+            );
+            let exercise = world.exercises.get(*exercise_id).unwrap();
+
+            let mut exercise_entity = commands.spawn(
+                (
+                    Exercise {
+                        id: exercise_id.clone(),
+                        ticks: 0,
+                        timeout: exercise.timeout,
+                    },
+                    SpatialBundle::default(),
+                )
+            );
+            for spawn in exercise.spawns.iter() {
+                exercise_entity.with_children(|parent| {
+                    parent.spawn(ElectronSpawn {
+                        position: spawn.0.clone(),
+                        instant: spawn.1,
+                    });
+                });
+            }
+
+            for output in exercise.outputs.iter() {
+                exercise_entity.with_children(|parrent| {
+                    parrent.spawn(ExpectedOutput {
+                        position: output.0.clone(),
+                        from: output.1,
+                        until: output.2,
+                        status: Inactive,
+                    });
+                });
+            }
+
+            exercise_entity.with_children(|parent| {
+                spawn_description(parent, exercise.description.clone(), &asset_server, field_size);
+            });
+        }
+    }
+}
+
 fn spawn_level(
     world: &World,
     mut commands: &mut Commands,
-    asset_server: &Res<AssetServer>,
+    mut events: &mut EventWriter<ChangeExercise>,
 ) -> WorldState {
     let mut world_state = WorldState {
         size: world.size,
         map: Vec::with_capacity(world.size.0 * world.size.1),
+        exercises: world.exercises.clone(),
     };
 
     for y in 0..world.size.1 {
@@ -353,56 +413,15 @@ fn spawn_level(
         }
     }
 
-    let field_size = Vec2::new(world.size.0 as f32 * CELL_SIZE, world.size.1 as f32 * CELL_SIZE);
-    if let Some(exercise) = world.exercises.get(0) {
-        spawn_exercise(exercise, commands, asset_server, field_size);
+    if world.exercises.len() > 0 {
+        events.send(ChangeExercise(0));
     }
 
     world_state
 }
 
-fn spawn_exercise(
-    exercise: &ExerciseData,
-    mut commands: &mut Commands,
-    asset_server: &Res<AssetServer>,
-    field_size: Vec2,
-) {
-    let mut exercise_entity = commands.spawn(
-        (
-            Exercise {
-                ticks: 0,
-                timeout: exercise.timeout,
-            },
-            SpatialBundle::default(),
-        )
-    );
-    for spawn in exercise.spawns.iter() {
-        exercise_entity.with_children(|parrent| {
-            parrent.spawn(ElectronSpawn {
-                position: spawn.0.clone(),
-                instant: spawn.1,
-            });
-        });
-    }
-
-    for output in exercise.outputs.iter() {
-        exercise_entity.with_children(|parrent| {
-            parrent.spawn(ExpectedOutput {
-                position: output.0.clone(),
-                from: output.1,
-                until: output.2,
-                status: Inactive,
-            });
-        });
-    }
-
-    exercise_entity.with_children(|parrent| {
-        spawn_description(parrent, exercise.description.clone(), asset_server, field_size);
-    });
-}
-
 fn spawn_description(
-    parrent: &mut ChildBuilder,
+    parent: &mut ChildBuilder,
     text: String,
     asset_server: &Res<AssetServer>,
     field_size: Vec2,
@@ -417,7 +436,7 @@ fn spawn_description(
         color: Color::WHITE,
     };
 
-    parrent.spawn(Text2dBundle {
+    parent.spawn(Text2dBundle {
         text: Text {
             sections: vec![TextSection::new(
                 text,

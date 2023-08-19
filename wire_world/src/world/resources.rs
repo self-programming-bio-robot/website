@@ -8,9 +8,10 @@ use crate::world::components::CellType::{ELECTRON, EMPTY, WIRE};
 pub struct WorldState {
     pub size: (usize, usize),
     pub map: Vec<Entity>,
+    pub exercises: Vec<ExerciseData>,
 }
 
-#[derive(TypeUuid, TypePath)]
+#[derive(TypeUuid, TypePath, Debug)]
 #[uuid = "e51081d0-6168-4881-a1c6-4249b2000d7f"]
 pub struct World {
     pub size: (usize, usize),
@@ -18,6 +19,7 @@ pub struct World {
     pub exercises: Vec<ExerciseData>,
 }
 
+#[derive(Debug, Clone)]
 pub struct ExerciseData {
     pub description: String,
     pub timeout: usize,

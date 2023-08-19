@@ -23,7 +23,7 @@ pub struct ExpectedOutput {
 
 #[derive(Component, Debug, Clone)]
 pub struct Exercise {
-    // pub description: Entity,
+    pub id: usize,
     pub ticks: usize,
     pub timeout: usize,
 }
@@ -52,6 +52,9 @@ pub enum OutputStatus {
     Success,
     Fail,
 }
+
+#[derive(Event)]
+pub struct ChangeExercise(pub usize);
 
 impl Cell {
     pub fn is_fixed(&self) -> bool {

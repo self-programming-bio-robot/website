@@ -36,17 +36,6 @@ pub enum CellType {
     TAIL(bool)
 }
 
-impl Cell {
-    pub fn is_fixed(&self) -> bool {
-        match self.cell_type.clone() {
-            EMPTY(fixed) => fixed,
-            WIRE(fixed) => fixed,
-            ELECTRON(fixed) => fixed,
-            TAIL(fixed) => fixed,
-        }
-    }
-}
-
 #[derive(Component, Default)]
 pub struct NextUpdate;
 
@@ -62,4 +51,26 @@ pub enum OutputStatus {
     Waiting,
     Success,
     Fail,
+}
+
+impl Cell {
+    pub fn is_fixed(&self) -> bool {
+        match self.cell_type.clone() {
+            EMPTY(fixed) => fixed,
+            WIRE(fixed) => fixed,
+            ELECTRON(fixed) => fixed,
+            TAIL(fixed) => fixed,
+        }
+    }
+}
+
+impl CellType {
+    pub fn base_color(self) -> Color {
+        match self {
+            ELECTRON(_) => Color::YELLOW,
+            WIRE(_) => Color::BLACK,
+            TAIL(_) => Color::RED,
+            _others => Color::LIME_GREEN,
+        }
+    }
 }

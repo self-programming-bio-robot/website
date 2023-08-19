@@ -1,5 +1,5 @@
 use std::mem::swap;
-use std::ops::Mul;
+use std::ops::{Add, Mul};
 
 use bevy::asset::{AssetEvent, AssetServer};
 use bevy::log::error;
@@ -111,24 +111,25 @@ pub fn update_cells(
 ) {
     if let Some(world) = world {
         for (_id, mut cell, mut sprite, changed) in cells.iter_mut() {
-            cell.cell_type = changed.0.clone();
-            sprite.color = match cell.cell_type.clone() {
+            let cell_type = changed.0.clone();
+            sprite.color = cell_type.clone().base_color();
+            cell.cell_type = cell_type.clone();
+
+            match cell_type {
                 ELECTRON(_) => {
-                    commands.entity(world.map[world.index(&cell.position)]).insert(NextUpdate::default());
+                    commands.entity(world.map[world.index(&cell.position)])
+                        .insert(NextUpdate::default());
                     let cells_around = world.get_cells_around(&cell.position);
 
                     for cell in cells_around.iter() {
                         commands.entity(*cell).insert(NextUpdate::default());
                     }
-
-                    Color::YELLOW
                 }
-                WIRE(_) => Color::BLACK,
                 TAIL(_) => {
-                    commands.entity(world.map[world.index(&cell.position)]).insert(NextUpdate::default());
-                    Color::RED
+                    commands.entity(world.map[world.index(&cell.position)])
+                        .insert(NextUpdate::default());
                 }
-                _others => Color::LIME_GREEN,
+                _others => {}
             };
         }
     }
@@ -241,6 +242,32 @@ pub fn handle_exercises(
     }
 }
 
+pub fn outputs_indication(
+    outputs: Query<&ExpectedOutput>,
+    world: Option<Res<WorldState>>,
+    mut cells: Query<(&mut Cell, &mut Sprite)>,
+    mut time: Local<i32>,
+    exercises: Query<&Exercise>,
+) {
+    if let Some(world) = world {
+        if let Ok(exercise) = exercises.get_single() {
+            *time = (*time + 1) % 30;
+            for output in outputs.iter() {
+                if exercise.ticks >= output.from && exercise.ticks < output.until {
+                    let cell = world.get_cell(&output.position);
+                    if let Ok((cell, mut sprite)) = cells.get_mut(cell) {
+                        sprite.color = if *time < 15 {
+                            cell.cell_type.clone().base_color()
+                        } else {
+                            Color::MIDNIGHT_BLUE
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 fn spawn_level(
     world: &World,
     mut commands: &mut Commands,
@@ -264,12 +291,7 @@ fn spawn_level(
                 cell,
                 SpriteBundle {
                     sprite: Sprite {
-                        color: match cell_type.clone() {
-                            ELECTRON(_) => Color::YELLOW,
-                            WIRE(_) => Color::BLACK,
-                            TAIL(_) => Color::RED,
-                            _others => Color::LIME_GREEN,
-                        },
+                        color: cell_type.base_color(),
                         custom_size: Some(Vec2::new(CELL_SIZE, CELL_SIZE)),
                         ..default()
                     },

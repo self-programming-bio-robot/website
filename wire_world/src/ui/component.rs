@@ -1,6 +1,6 @@
 use bevy::prelude::{Component, Interaction};
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, PartialEq)]
 pub enum LevelActions {
     Menu,
     Pause,

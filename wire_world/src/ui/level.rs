@@ -1,14 +1,17 @@
+use std::os::macos::raw::stat;
 use std::time::Duration;
 use bevy::app::AppExit;
 use bevy::prelude::*;
 use bevy::ui::widget::UiImageSize;
 use crate::control::ExitGame;
 use crate::ui::component::{ButtonState, LevelActions};
+use crate::ui::component::LevelActions::{Pause, Play};
 use crate::world::resources::Counter;
 
 const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
 const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
 const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
+const SELECTED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
 
 pub fn button_system(
     mut interaction_query: Query<
@@ -19,22 +22,43 @@ pub fn button_system(
     mut exit: EventWriter<ExitGame>
 ) {
     for (interaction, mut color, mut state, action)
-    in &mut interaction_query {
+    in interaction_query.iter_mut() {
         match *interaction {
-            Interaction::Pressed => {
-                *color = PRESSED_BUTTON.into();
-            }
             Interaction::Hovered => {
-                *color = HOVERED_BUTTON.into();
                 if (state.prev_interaction == Interaction::Pressed) {
                     button_click(action, counter.as_mut(), &mut exit);
                 }
             }
-            Interaction::None => {
-                *color = NORMAL_BUTTON.into();
-            }
+            _other => {}
         }
         state.prev_interaction = interaction.clone();
+    }
+}
+
+pub fn button_state(
+    mut buttons: Query<(&mut BackgroundColor, &mut ButtonState, &LevelActions), With<Button>>,
+    counter: Res<Counter>,
+) {
+    for (mut color, button_state, action) in buttons.iter_mut() {
+        match button_state.prev_interaction {
+            Interaction::Hovered => {
+                *color = HOVERED_BUTTON.into();
+            },
+            Interaction::Pressed => {
+                *color = PRESSED_BUTTON.into();
+            },
+            Interaction::None => {
+                *color = NORMAL_BUTTON.into();
+
+                if *action == Pause && counter.timer.paused() {
+                    *color = SELECTED_BUTTON.into();
+                } else if let Play(speed) = action {
+                    if !counter.timer.paused() && *speed == counter.timer.duration().as_secs_f32() {
+                        *color = SELECTED_BUTTON.into();
+                    }
+                }
+            }
+        }
     }
 }
 

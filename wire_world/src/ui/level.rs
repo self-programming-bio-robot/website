@@ -5,8 +5,7 @@ use bevy::prelude::*;
 use bevy::ui::widget::UiImageSize;
 use crate::control::ExitGame;
 use crate::ui::component::{ButtonState, LevelActions};
-use crate::ui::component::LevelActions::{Pause, Play};
-use crate::world::resources::Counter;
+use crate::world::resources::{Counter, WorldState};
 
 const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
 const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
@@ -19,14 +18,15 @@ pub fn button_system(
         (Changed<Interaction>, With<Button>),
     >,
     mut counter: ResMut<Counter>,
-    mut exit: EventWriter<ExitGame>
+    mut exit: EventWriter<ExitGame>,
+    mut world: Option<ResMut<WorldState>>,
 ) {
     for (interaction, mut color, mut state, action)
     in interaction_query.iter_mut() {
         match *interaction {
             Interaction::Hovered => {
                 if (state.prev_interaction == Interaction::Pressed) {
-                    button_click(action, counter.as_mut(), &mut exit);
+                    button_click(action, counter.as_mut(), &mut exit, &mut world);
                 }
             }
             _other => {}
@@ -50,9 +50,9 @@ pub fn button_state(
             Interaction::None => {
                 *color = NORMAL_BUTTON.into();
 
-                if *action == Pause && counter.timer.paused() {
+                if *action == LevelActions::Pause && counter.timer.paused() {
                     *color = SELECTED_BUTTON.into();
-                } else if let Play(speed) = action {
+                } else if let LevelActions::Play(speed) = action {
                     if !counter.timer.paused() && *speed == counter.timer.duration().as_secs_f32() {
                         *color = SELECTED_BUTTON.into();
                     }
@@ -65,7 +65,8 @@ pub fn button_state(
 fn button_click(
     action: &LevelActions,
     counter: &mut Counter,
-    exit: &mut EventWriter<ExitGame>
+    exit: &mut EventWriter<ExitGame>,
+    mut world: &mut Option<ResMut<WorldState>>,
 ) {
     match action {
         LevelActions::Menu => {
@@ -79,6 +80,9 @@ fn button_click(
         LevelActions::Play(speed) => {
             counter.timer.unpause();
             counter.timer.set_duration(Duration::from_secs_f32(*speed));
+            if let Some(world) = world {
+                world.lock = true;
+            }
             info!("set speed {}", speed);
         },
     }

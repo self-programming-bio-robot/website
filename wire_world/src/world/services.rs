@@ -149,6 +149,8 @@ pub fn handle_clicks(
         let half_cell_size = CELL_SIZE / 2.;
 
         for event in click_events.iter() {
+            if world.lock { continue; }
+
             let x = (event.pos.x + half_cell_size) / CELL_SIZE;
             let y = (-event.pos.y + half_cell_size) / CELL_SIZE;
 
@@ -160,14 +162,19 @@ pub fn handle_clicks(
             let y = y.trunc() as usize;
             let cell = world.get_cell(&Point(x, y));
             if let Ok(cell_type) = cells.get(cell) {
-                if !cell_type.is_fixed() {
-                    commands.entity(cell).insert(Change(
-                        match event.button {
-                            MouseButton::Left => WIRE(false),
-                            _others => ELECTRON(false),
-                        })
-                    );
-                }
+                commands.entity(cell).insert(Change(
+                    match event.button {
+                        MouseButton::Left => match cell_type.cell_type.clone() {
+                            WIRE(false) => EMPTY(false),
+                            EMPTY(false) => WIRE(false),
+                            other => other
+                        },
+                        _others => match (cell_type.cell_type.clone(), world.electron_available) {
+                            (WIRE(fixed), true) => ELECTRON(fixed),
+                            other => other.0
+                        },
+                    })
+                );
             }
         }
     }
@@ -233,34 +240,39 @@ pub fn handle_exercises(
     outputs: Query<&ExpectedOutput>,
     exercises: Query<&Exercise, Changed<Exercise>>,
     camera: Query<Entity, &Camera2d>,
+    mut world: Option<ResMut<WorldState>>,
 ) {
     if let Ok(exercise) = exercises.get_single() {
-        let camera = camera.single();
+        if let Some(mut world) = world {
+            let camera = camera.single();
 
-        let statues: Vec<OutputStatus> = outputs.iter()
-            .map(|output| output.status.clone()).collect();
-        debug!("statues: {:?}", statues);
-        if outputs.iter().any(|o| o.status == Fail) || exercise.ticks > exercise.timeout {
-            info!("Fail exercise");
-            commands.entity(camera)
-                .insert(blink_background(
-                    Duration::from_millis(500),
-                    Color::DARK_GRAY,
-                    Color::RED,
-                ));
-            counter.timer.pause();
-            events.send(ChangeExercise(0));
-        }
+            let statues: Vec<OutputStatus> = outputs.iter()
+                .map(|output| output.status.clone()).collect();
+            debug!("statues: {:?}", statues);
+            if outputs.iter().any(|o| o.status == Fail) || exercise.ticks > exercise.timeout {
+                info!("Fail exercise");
+                commands.entity(camera)
+                    .insert(blink_background(
+                        Duration::from_millis(500),
+                        Color::DARK_GRAY,
+                        Color::RED,
+                    ));
+                counter.timer.pause();
+                events.send(ChangeExercise(0));
+                world.lock = false;
+            }
 
-        if outputs.iter().all(|o| o.status == Success) {
-            info!("Success exercise");
-            commands.entity(camera)
-                .insert(blink_background(
-                    Duration::from_millis(500),
-                    Color::DARK_GRAY,
-                    Color::LIME_GREEN,
-                ));
-            events.send(ChangeExercise(exercise.id + 1));
+            if outputs.iter().all(|o| o.status == Success) {
+                info!("Success exercise");
+                commands.entity(camera)
+                    .insert(blink_background(
+                        Duration::from_millis(500),
+                        Color::DARK_GRAY,
+                        Color::LIME_GREEN,
+                    ));
+                events.send(ChangeExercise(exercise.id + 1));
+                world.lock = false;
+            }
         }
     }
 }
@@ -357,6 +369,8 @@ fn spawn_level(
         size: world.size,
         map: Vec::with_capacity(world.size.0 * world.size.1),
         exercises: world.exercises.clone(),
+        electron_available: world.electron_available,
+        lock: false,
     };
 
     for y in 0..world.size.1 {

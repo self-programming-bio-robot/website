@@ -9,6 +9,8 @@ pub struct WorldState {
     pub size: (usize, usize),
     pub map: Vec<Entity>,
     pub exercises: Vec<ExerciseData>,
+    pub electron_available: bool,
+    pub lock: bool,
 }
 
 #[derive(TypeUuid, TypePath, Debug)]
@@ -16,6 +18,7 @@ pub struct WorldState {
 pub struct World {
     pub size: (usize, usize),
     pub map: Vec<CellType>,
+    pub electron_available: bool,
     pub exercises: Vec<ExerciseData>,
 }
 
@@ -51,6 +54,8 @@ impl World {
         let mut sizes = lines.next().ok_or(Error::msg("Not found size"))?.split(" ");
         let width: usize = sizes.next().ok_or(Error::msg("Not found width"))?.parse()?;
         let height: usize = sizes.next().ok_or(Error::msg("Not found height"))?.parse()?;
+        let electron_available: bool = lines.next()
+            .ok_or(Error::msg("Not found electron-available flag"))?.parse()?;
 
         let mut map: Vec<CellType> = Vec::with_capacity(width * height);
         for i in 0..height {
@@ -119,7 +124,8 @@ impl World {
             World {
                 size: (width, height),
                 map,
-                exercises
+                exercises,
+                electron_available
             }
         )
     }

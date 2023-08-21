@@ -23,6 +23,13 @@ pub enum GameState {
     Level,
 }
 
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Default, States)]
+pub enum LevelState {
+    #[default]
+    Process,
+    Finish,
+}
+
 pub struct GamePlugin;
 
 impl Plugin for GamePlugin {

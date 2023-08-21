@@ -11,7 +11,7 @@ use bevy::text::{BreakLineOn, Text2dBounds};
 use bevy_tweening::{Animator, EaseFunction, Lens, RepeatStrategy, Tween};
 
 use crate::control::{ClickEvent, MoveCamera};
-use crate::GameState;
+use crate::{GameState, LevelState};
 use crate::world::CELL_SIZE;
 use crate::world::components::{Cell, Change, ChangeExercise, ElectronSpawn, Exercise, ExpectedOutput, NextUpdate, OutputStatus, Point};
 use crate::world::components::CellType::{ELECTRON, EMPTY, TAIL, WIRE};
@@ -238,11 +238,12 @@ pub fn handle_exercises(
     mut counter: ResMut<Counter>,
     mut events: EventWriter<ChangeExercise>,
     outputs: Query<&ExpectedOutput>,
-    exercises: Query<&Exercise, Changed<Exercise>>,
+    exercises: Query<(Entity, &Exercise), Changed<Exercise>>,
     camera: Query<Entity, &Camera2d>,
     mut world: Option<ResMut<WorldState>>,
+    mut level_state: ResMut<NextState<LevelState>>,
 ) {
-    if let Ok(exercise) = exercises.get_single() {
+    if let Ok((exercise_id, exercise)) = exercises.get_single() {
         if let Some(mut world) = world {
             let camera = camera.single();
 
@@ -251,6 +252,7 @@ pub fn handle_exercises(
             debug!("statues: {:?}", statues);
             if outputs.iter().any(|o| o.status == Fail) || exercise.ticks > exercise.timeout {
                 info!("Fail exercise");
+                commands.entity(exercise_id).despawn_recursive();
                 commands.entity(camera)
                     .insert(blink_background(
                         Duration::from_millis(500),
@@ -264,13 +266,18 @@ pub fn handle_exercises(
 
             if outputs.iter().all(|o| o.status == Success) {
                 info!("Success exercise");
+                commands.entity(exercise_id).despawn_recursive();
                 commands.entity(camera)
                     .insert(blink_background(
                         Duration::from_millis(500),
                         Color::DARK_GRAY,
                         Color::LIME_GREEN,
                     ));
-                events.send(ChangeExercise(exercise.id + 1));
+                if exercise.id + 1 < world.exercises.len() {
+                    events.send(ChangeExercise(exercise.id + 1));
+                } else {
+                    level_state.set(LevelState::Finish);
+                }
                 world.lock = false;
             }
         }

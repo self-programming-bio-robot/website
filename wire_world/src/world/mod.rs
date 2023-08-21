@@ -1,8 +1,8 @@
 use std::time::Duration;
 use bevy::app::{App, Plugin};
 use bevy::prelude::*;
-use crate::GameState;
-use crate::world::components::{ChangeExercise, Exercise};
+use crate::{GameState, LevelState};
+use crate::world::components::ChangeExercise;
 use crate::world::resources::{Counter, LevelConfig, World, WorldState};
 use crate::world::services::*;
 use crate::world::world_loader::WorldLoader;
@@ -29,14 +29,16 @@ impl Plugin for WorldPlugin {
             .add_systems(OnEnter(GameState::Level), init_level)
             .add_systems(Update, (
                 load_level,
-                find_cell_to_update,
-                update_cells,
                 handle_clicks,
-                spawn_electron,
-                handle_outputs,
-                handle_exercises,
+                handle_outputs.after(change_exercise),
+                handle_exercises.after(handle_outputs),
                 outputs_indication,
                 change_exercise,
+            ).run_if(in_state(GameState::Level).and_then(in_state(LevelState::Process))))
+            .add_systems(Update, (
+                find_cell_to_update,
+                update_cells,
+                spawn_electron,
             ).run_if(in_state(GameState::Level)))
             ;
     }

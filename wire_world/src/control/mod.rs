@@ -4,7 +4,7 @@ use bevy::prelude::*;
 use bevy::prelude::MouseButton;
 use bevy::reflect::Map;
 use bevy::utils::HashMap;
-use crate::GameState;
+use crate::{GameState, LevelState};
 
 pub struct ControlPlugin;
 
@@ -39,7 +39,7 @@ impl Plugin for ControlPlugin {
             .add_event::<ExitGame>()
             .add_systems(Update, (
                 handle_click, set_camera_position
-            ).run_if(in_state(GameState::Level)))
+            ).run_if(in_state(GameState::Level).and_then(in_state(LevelState::Process))))
         ;
     }
 }

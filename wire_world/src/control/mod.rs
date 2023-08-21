@@ -1,8 +1,7 @@
-use std::env::consts::OS;
+
 use bevy::app::{App, AppExit};
 use bevy::prelude::*;
 use bevy::prelude::MouseButton;
-use bevy::reflect::Map;
 use bevy::utils::HashMap;
 use crate::{GameState, LevelState};
 
@@ -45,7 +44,7 @@ impl Plugin for ControlPlugin {
 }
 
 pub fn handle_click(
-    mut events: Res<Input<MouseButton>>,
+    events: Res<Input<MouseButton>>,
     mut click_events: EventWriter<ClickEvent>,
     windows: Query<&Window>,
     mut camera_q: Query<(&Camera, &GlobalTransform, &mut Transform)>,

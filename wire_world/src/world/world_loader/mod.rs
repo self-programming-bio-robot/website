@@ -1,5 +1,5 @@
 use bevy::asset::{AssetLoader, BoxedFuture, Error, LoadContext, LoadedAsset};
-use crate::world::components::CellType::{ELECTRON, EMPTY, WIRE};
+
 use crate::world::resources::World;
 
 pub struct WorldLoader;

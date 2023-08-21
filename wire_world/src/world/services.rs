@@ -1,14 +1,14 @@
-use std::mem::swap;
-use std::ops::{Add, Mul};
+
+use std::ops::{Mul};
 use std::time::Duration;
 
 use bevy::asset::{AssetEvent, AssetServer};
-use bevy::core_pipeline::clear_color::ClearColorConfig::Custom;
+
 use bevy::log::error;
 use bevy::prelude::*;
-use bevy::sprite::Anchor::{BottomCenter, TopCenter};
+use bevy::sprite::Anchor::{BottomCenter};
 use bevy::text::{BreakLineOn, Text2dBounds};
-use bevy_tweening::{Animator, EaseFunction, Lens, RepeatStrategy, Tween};
+
 
 use crate::control::{ClickEvent, MoveCamera};
 use crate::{GameState, LevelState};
@@ -16,8 +16,8 @@ use crate::world::CELL_SIZE;
 use crate::world::components::{Cell, Change, ChangeExercise, ElectronSpawn, Exercise, ExpectedOutput, NextUpdate, OutputStatus, Point};
 use crate::world::components::CellType::{ELECTRON, EMPTY, TAIL, WIRE};
 use crate::world::components::OutputStatus::{Fail, Inactive, Success, Waiting};
-use crate::world::resources::{Counter, ExerciseData, LevelConfig, World, WorldState};
-use crate::world::tweens::{blink_background, Camera2dLens};
+use crate::world::resources::{Counter, LevelConfig, World, WorldState};
+use crate::world::tweens::{blink_background};
 
 pub fn init_level(
     mut next_state: ResMut<NextState<GameState>>,
@@ -240,7 +240,7 @@ pub fn handle_exercises(
     outputs: Query<&ExpectedOutput>,
     exercises: Query<(Entity, &Exercise), Changed<Exercise>>,
     camera: Query<Entity, &Camera2d>,
-    mut world: Option<ResMut<WorldState>>,
+    world: Option<ResMut<WorldState>>,
     mut level_state: ResMut<NextState<LevelState>>,
 ) {
     if let Ok((exercise_id, exercise)) = exercises.get_single() {
@@ -369,8 +369,8 @@ pub fn change_exercise(
 
 fn spawn_level(
     world: &World,
-    mut commands: &mut Commands,
-    mut events: &mut EventWriter<ChangeExercise>,
+    commands: &mut Commands,
+    events: &mut EventWriter<ChangeExercise>,
 ) -> WorldState {
     let mut world_state = WorldState {
         size: world.size,

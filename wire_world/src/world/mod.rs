@@ -3,7 +3,7 @@ use bevy::app::{App, Plugin};
 use bevy::prelude::*;
 use crate::{GameState, LevelState};
 use crate::world::components::ChangeExercise;
-use crate::world::resources::{Counter, LevelConfig, World, WorldState};
+use crate::world::resources::{Counter, LevelConfig, World};
 use crate::world::services::*;
 use crate::world::world_loader::WorldLoader;
 

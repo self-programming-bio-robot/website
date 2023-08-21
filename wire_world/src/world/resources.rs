@@ -58,7 +58,7 @@ impl World {
             .ok_or(Error::msg("Not found electron-available flag"))?.parse()?;
 
         let mut map: Vec<CellType> = Vec::with_capacity(width * height);
-        for i in 0..height {
+        for _i in 0..height {
             let line = lines.next().ok_or(Error::msg("File is broken"))?;
 
             for (j, cell) in line.split(" ").enumerate() {

@@ -1,9 +1,9 @@
-use std::os::macos::raw::stat;
+
 use std::time::Duration;
-use bevy::app::AppExit;
+
 use bevy::prelude::*;
 use bevy::text::BreakLineOn;
-use bevy::ui::widget::UiImageSize;
+
 use crate::control::ExitGame;
 use crate::LevelState;
 use crate::ui::component::{ButtonState, LevelActions, LevelFinishUI, LevelUI};
@@ -20,16 +20,13 @@ pub fn button_system(
         (&Interaction, &mut BackgroundColor, &mut ButtonState, &LevelActions),
         (Changed<Interaction>, With<Button>),
     >,
-    mut counter: ResMut<Counter>,
-    mut exit: EventWriter<ExitGame>,
-    mut world: Option<ResMut<WorldState>>,
     mut actions: EventWriter<LevelActions>,
 ) {
-    for (interaction, mut color, mut state, action)
+    for (interaction, _color, mut state, action)
     in interaction_query.iter_mut() {
         match *interaction {
             Interaction::Hovered => {
-                if (state.prev_interaction == Interaction::Pressed) {
+                if state.prev_interaction == Interaction::Pressed {
                     actions.send(action.clone());
                 }
             }
@@ -212,7 +209,7 @@ pub fn button_click(
     mut actions: EventReader<LevelActions>,
     mut counter: ResMut<Counter>,
     mut exit: EventWriter<ExitGame>,
-    mut world: Option<ResMut<WorldState>>,
+    world: Option<ResMut<WorldState>>,
     mut level_state: ResMut<NextState<LevelState>>,
     mut events: EventWriter<ChangeExercise>,
 ) {

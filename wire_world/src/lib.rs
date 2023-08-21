@@ -2,17 +2,17 @@ pub mod world;
 pub mod control;
 pub mod ui;
 
-use std::time::Duration;
+
 use bevy::app::App;
 use bevy::core_pipeline::clear_color::ClearColorConfig;
 use bevy::DefaultPlugins;
 use bevy::prelude::*;
-use bevy::window::WindowMode::Fullscreen;
+
 use bevy_tweening::*;
 use crate::control::ControlPlugin;
 use crate::ui::UiPlugin;
 use crate::world::resources::LevelConfig;
-use crate::world::tweens::Camera2dLens;
+
 use crate::world::WorldPlugin;
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Default, States)]

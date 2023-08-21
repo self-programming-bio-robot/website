@@ -27,6 +27,7 @@ impl Plugin for WorldPlugin {
             .insert_resource(LevelConfig::empty())
             .add_event::<ChangeExercise>()
             .add_systems(OnEnter(GameState::Level), init_level)
+            .add_systems(OnExit(GameState::Level), destroy_level)
             .add_systems(Update, (
                 load_level,
                 handle_clicks,

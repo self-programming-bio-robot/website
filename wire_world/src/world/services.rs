@@ -367,6 +367,20 @@ pub fn change_exercise(
     }
 }
 
+pub fn destroy_level(
+    mut commands: Commands,
+    entities: Query<Entity, With<Sprite>>,
+    exercises: Query<Entity, With<Exercise>>,
+) {
+    commands.remove_resource::<WorldState>();
+    for entity in entities.iter() {
+        commands.entity(entity).despawn_recursive();
+    }
+    for entity in exercises.iter() {
+        commands.entity(entity).despawn_recursive();
+    }
+}
+
 fn spawn_level(
     world: &World,
     commands: &mut Commands,

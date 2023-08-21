@@ -4,8 +4,7 @@ use std::time::Duration;
 use bevy::prelude::*;
 use bevy::text::BreakLineOn;
 
-use crate::control::ExitGame;
-use crate::LevelState;
+use crate::{GameState, LevelState};
 use crate::ui::component::{ButtonState, LevelActions, LevelFinishUI, LevelUI};
 use crate::world::components::ChangeExercise;
 use crate::world::resources::{Counter, WorldState};
@@ -208,9 +207,9 @@ pub fn delete_ui<T: Component>(
 pub fn button_click(
     mut actions: EventReader<LevelActions>,
     mut counter: ResMut<Counter>,
-    mut exit: EventWriter<ExitGame>,
     world: Option<ResMut<WorldState>>,
     mut level_state: ResMut<NextState<LevelState>>,
+    mut game_state: ResMut<NextState<GameState>>,
     mut events: EventWriter<ChangeExercise>,
 ) {
     if let Some(mut world) = world {
@@ -218,7 +217,7 @@ pub fn button_click(
             match action {
                 LevelActions::Menu => {
                     info!("goto menu");
-                    exit.send(ExitGame);
+                    game_state.set(GameState::LevelsList);
                 }
                 LevelActions::Pause => {
                     counter.timer.pause();

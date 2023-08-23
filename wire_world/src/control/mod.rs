@@ -25,6 +25,7 @@ pub struct MouseButtonsState {
 pub struct MoveCamera {
     pub pos: Vec2,
     pub force: bool,
+    pub absolute: bool,
 }
 
 #[derive(Event)]
@@ -91,7 +92,11 @@ pub fn set_camera_position(
     for event in events.iter() {
         let mut camera_transform = camera_q.single_mut();
 
-        camera_transform.translation += Vec3::from((event.pos, 0.));
+        if event.absolute {
+            camera_transform.translation = Vec3::from((event.pos, camera_transform.translation.z));
+        } else {
+            camera_transform.translation += Vec3::from((event.pos, 0.));
+        }
     }
 }
 

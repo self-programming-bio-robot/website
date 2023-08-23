@@ -11,14 +11,14 @@ use bevy::prelude::*;
 use bevy_tweening::*;
 use crate::control::ControlPlugin;
 use crate::ui::UiPlugin;
-use crate::world::resources::LevelConfig;
+use crate::world::components::Point;
+
 
 use crate::world::WorldPlugin;
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Default, States)]
 pub enum GameState {
     #[default]
-    Menu,
     LevelsList,
     Level,
 }
@@ -29,6 +29,58 @@ pub enum LevelState {
     Process,
     Finish,
 }
+
+pub struct LevelDescription<'a> {
+    pub file_name: &'a str,
+    pub size: Point,
+    pub title: &'a str,
+    pub exercise_count: usize,
+}
+
+const LEVELS: [LevelDescription<'static>; 7] = [
+    LevelDescription {
+        file_name: "free.level",
+        size: Point(100, 100),
+        title: "Free",
+        exercise_count: 0,
+    },
+    LevelDescription {
+        file_name: "or.level",
+        size: Point(19, 9),
+        title: "Logic OR",
+        exercise_count: 2,
+    },
+    LevelDescription {
+        file_name: "or.level",
+        size: Point(19, 9),
+        title: "Logic OR",
+        exercise_count: 2,
+    },
+    LevelDescription {
+        file_name: "or.level",
+        size: Point(19, 9),
+        title: "Logic OR",
+        exercise_count: 2,
+    },
+    LevelDescription {
+        file_name: "or.level",
+        size: Point(19, 9),
+        title: "Logic OR",
+        exercise_count: 2,
+    },
+    LevelDescription {
+        file_name: "or.level",
+        size: Point(19, 9),
+        title: "Logic OR",
+        exercise_count: 2,
+    },
+    LevelDescription {
+        file_name: "or.level",
+        size: Point(19, 9),
+        title: "Logic OR",
+        exercise_count: 2,
+    },
+];
 
 pub struct GamePlugin;
 
@@ -60,8 +112,6 @@ impl Plugin for GamePlugin {
 
 pub fn init(
     mut commands: Commands,
-    mut next_state: ResMut<NextState<GameState>>,
-    mut level_config: ResMut<LevelConfig>,
 ) {
     commands.spawn(
         (
@@ -72,9 +122,6 @@ pub fn init(
                 ..default()
             },
         ));
-
-    level_config.level_name = Some("level1.level".to_owned());
-    next_state.set(GameState::Level);
 }
 
 impl GamePlugin {

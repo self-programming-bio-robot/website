@@ -27,6 +27,7 @@ pub fn init_level(
 ) {
     counter.timer.pause();
     if let Some(level_name) = level_config.level_name.clone() {
+        info!("Loading level {}...", level_name);
         let _ = assets.load_untyped(level_name);
     } else {
         error!("Level config is undefined");
@@ -45,6 +46,7 @@ pub fn load_level(
         match event {
             AssetEvent::Created { handle } => {
                 if let Some(level) = levels.get(handle) {
+                    info!("Level is loaded");
                     let world_state = spawn_level(level, &mut commands, &mut events);
                     let pos = Vec2::new(
                         CELL_SIZE * level.size.0 as f32,
@@ -53,6 +55,7 @@ pub fn load_level(
                     camera_events.send(MoveCamera {
                         pos,
                         force: true,
+                        absolute: true,
                     });
                     commands.insert_resource(world_state);
                 }

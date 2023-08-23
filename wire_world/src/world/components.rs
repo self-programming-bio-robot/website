@@ -77,3 +77,9 @@ impl CellType {
         }
     }
 }
+
+impl Into<String> for Point {
+    fn into(self) -> String {
+        format!("{} x {}", self.0, self.1)
+    }
+}

@@ -2,6 +2,7 @@
     font-family: "Ubuntu Mono";
     src: url(UbuntuMono-Regular.ttf);
 }
+
 body, html {
   background-color: black;
   color: white;
@@ -55,4 +56,12 @@ input:focus {
 p {
   padding: 0;
   margin: 0;
+}
+
+
+#fullsize {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    overflow: hidden;
 }

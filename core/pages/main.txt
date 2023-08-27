@@ -27,3 +27,4 @@ email: nikolai@zhdanov.dev
 What's next:
 0. About me
 1. My CV
+2. Experiments

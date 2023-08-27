@@ -1,0 +1,59 @@
+19 9
+false
+e e e e e e e e e e e e e e e e e e e
+e e e e e e e e e e e e e e e e e e e
+e e W W e e e e e e e e e e e e e e e
+e e e e e e e e W e e e e E E E E E E
+e e e e e e e e e W W W W W W W W W E
+e e e e e e e e W e e e e E E E E E E
+e e W W e e e e e e e e e e e e e e e
+e e e e e e e e e e e e e e e e e e e
+e e e e e e e e e e e e e e e e e e e
+4
+Logic XOR
+There are two signal producer on the left side
+Receiver on the right shouldn't receive have signal
+Avoid backpropagation
+
+18
+2
+1 2 2
+1 2 6
+3
+false 3 18 2 2
+false 3 18 2 6
+false 0 18 17 4
+Exercise Two
+There is only one signal producer on the left top side
+Receiver on the right should receive have signal
+Avoid backpropagation
+
+18
+1
+1 2 2
+3
+false 3 18 2 2
+false 3 18 2 6
+true 0 18 17 4
+Exercise Three
+There is only one signal producer on the left bottom side
+Receiver on the right should receive have signal
+Avoid backpropagation
+
+18
+1
+1 2 6
+3
+false 3 18 2 2
+false 3 18 2 6
+true 0 18 17 4
+Exercise Four
+There aren't any signal producers
+Receiver on the right shouldn't receive have signal
+
+18
+0
+3
+false 3 18 2 2
+false 3 18 2 6
+false 0 18 17 4

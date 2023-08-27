@@ -30,14 +30,7 @@ pub enum LevelState {
     Finish,
 }
 
-pub struct LevelDescription<'a> {
-    pub file_name: &'a str,
-    pub size: Point,
-    pub title: &'a str,
-    pub exercise_count: usize,
-}
-
-const LEVELS: [LevelDescription<'static>; 7] = [
+const LEVELS: [LevelDescription<'static>; 8] = [
     LevelDescription {
         file_name: "free.level",
         size: Point(100, 100),
@@ -45,42 +38,55 @@ const LEVELS: [LevelDescription<'static>; 7] = [
         exercise_count: 0,
     },
     LevelDescription {
-        file_name: "or.level",
+        file_name: "crossroad.level",
         size: Point(19, 9),
-        title: "Logic OR",
+        title: "Crossroad",
+        exercise_count: 4,
+    },
+    LevelDescription {
+        file_name: "forward_blocker.level",
+        size: Point(19, 9),
+        title: "Forward blocker",
+        exercise_count: 2,
+    },
+    LevelDescription {
+        file_name: "diode.level",
+        size: Point(19, 9),
+        title: "Diode",
+        exercise_count: 2,
+    },
+    LevelDescription {
+        file_name: "blocker.level",
+        size: Point(19, 9),
+        title: "Blocker",
         exercise_count: 2,
     },
     LevelDescription {
         file_name: "or.level",
         size: Point(19, 9),
         title: "Logic OR",
-        exercise_count: 2,
+        exercise_count: 4,
     },
     LevelDescription {
-        file_name: "or.level",
+        file_name: "xor.level",
         size: Point(19, 9),
-        title: "Logic OR",
-        exercise_count: 2,
+        title: "Logic XOR",
+        exercise_count: 4,
     },
     LevelDescription {
-        file_name: "or.level",
+        file_name: "and.level",
         size: Point(19, 9),
-        title: "Logic OR",
-        exercise_count: 2,
-    },
-    LevelDescription {
-        file_name: "or.level",
-        size: Point(19, 9),
-        title: "Logic OR",
-        exercise_count: 2,
-    },
-    LevelDescription {
-        file_name: "or.level",
-        size: Point(19, 9),
-        title: "Logic OR",
-        exercise_count: 2,
+        title: "Logic AND",
+        exercise_count: 4,
     },
 ];
+
+pub struct LevelDescription<'a> {
+    pub file_name: &'a str,
+    pub size: Point,
+    pub title: &'a str,
+    pub exercise_count: usize,
+}
 
 pub struct GamePlugin;
 

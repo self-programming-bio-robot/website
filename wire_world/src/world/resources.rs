@@ -27,7 +27,7 @@ pub struct ExerciseData {
     pub description: String,
     pub timeout: usize,
     pub spawns: Vec<(Point, usize)>,
-    pub outputs: Vec<(Point, usize, usize)>,
+    pub outputs: Vec<(Point, bool, usize, usize)>,
 }
 
 #[derive(Resource)]
@@ -109,7 +109,7 @@ impl World {
 
             let outputs_count: usize = lines.next()
                 .ok_or(Error::msg("Not found count of outputs"))?.parse()?;
-            let mut outputs: Vec<(Point, usize, usize)> = Vec::with_capacity(outputs_count);
+            let mut outputs: Vec<(Point, bool, usize, usize)> = Vec::with_capacity(outputs_count);
             for _ in 0..outputs_count {
                 outputs.push(
                     Self::parse_output(lines.next()
@@ -150,18 +150,20 @@ impl World {
         Ok((Point(x, y), instant))
     }
 
-    fn parse_output(line: &str) -> Result<(Point, usize, usize), Error> {
-        let mut sizes = line.split(" ");
-        let from: usize = sizes.next()
+    fn parse_output(line: &str) -> Result<(Point, bool, usize, usize), Error> {
+        let mut output = line.split(" ");
+        let expectation: bool = output.next()
+            .ok_or(Error::msg("Not found from expectation of output"))?.parse()?;
+        let from: usize = output.next()
             .ok_or(Error::msg("Not found from instant of output"))?.parse()?;
-        let until: usize = sizes.next()
+        let until: usize = output.next()
             .ok_or(Error::msg("Not found until instant of output"))?.parse()?;
-        let x: usize = sizes.next()
+        let x: usize = output.next()
             .ok_or(Error::msg("Not found x of output"))?.parse()?;
-        let y: usize = sizes.next()
+        let y: usize = output.next()
             .ok_or(Error::msg("Not found y of output"))?.parse()?;
 
-        Ok((Point(x, y), from, until))
+        Ok((Point(x, y), expectation, from, until))
     }
 }
 

@@ -217,6 +217,8 @@ pub fn button_click(
             match action {
                 LevelActions::Menu => {
                     info!("goto menu");
+                    counter.timer.pause();
+                    level_state.set(LevelState::Process);
                     game_state.set(GameState::LevelsList);
                 }
                 LevelActions::Pause => {

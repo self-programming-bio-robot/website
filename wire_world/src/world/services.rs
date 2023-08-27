@@ -1,4 +1,3 @@
-
 use std::ops::{Mul};
 use std::time::Duration;
 
@@ -25,6 +24,7 @@ pub fn init_level(
     assets: Res<AssetServer>,
     mut counter: ResMut<Counter>,
 ) {
+    counter.timer.reset();
     counter.timer.pause();
     if let Some(level_name) = level_config.level_name.clone() {
         info!("Loading level {}...", level_name);
@@ -46,7 +46,23 @@ pub fn load_level(
         match event {
             AssetEvent::Created { handle } => {
                 if let Some(level) = levels.get(handle) {
-                    info!("Level is loaded");
+                    info!("Level is loaded {:?}", level);
+                    let world_state = spawn_level(level, &mut commands, &mut events);
+                    let pos = Vec2::new(
+                        CELL_SIZE * level.size.0 as f32,
+                        -CELL_SIZE * level.size.1 as f32,
+                    ) * 0.5;
+                    camera_events.send(MoveCamera {
+                        pos,
+                        force: true,
+                        absolute: true,
+                    });
+                    commands.insert_resource(world_state);
+                }
+            }
+            AssetEvent::Modified { handle } => {
+                if let Some(level) = levels.get(handle) {
+                    info!("Level is modified");
                     let world_state = spawn_level(level, &mut commands, &mut events);
                     let pos = Vec2::new(
                         CELL_SIZE * level.size.0 as f32,
@@ -225,11 +241,19 @@ pub fn handle_outputs(
                     let cell = world.get_cell(&output.position);
                     if let Ok(cell) = cells.get(cell) {
                         if let ELECTRON(_) = cell.cell_type {
-                            output.status = Success;
+                            output.status = match output.expectation {
+                                true => Success,
+                                false => Fail
+                            }
                         }
                     }
-                } else if exercise.ticks >= output.until && output.status != Success {
-                    output.status = Fail;
+                } else if exercise.ticks >= output.until {
+                    if !output.expectation && output.status != Fail {
+                        output.status = Success;
+                    }
+                    if output.expectation && output.status != Success {
+                        output.status = Fail;
+                    }
                 }
             }
         }
@@ -252,7 +276,7 @@ pub fn handle_exercises(
 
             let statues: Vec<OutputStatus> = outputs.iter()
                 .map(|output| output.status.clone()).collect();
-            debug!("statues: {:?}", statues);
+            info!("statues: {:?}", statues);
             if outputs.iter().any(|o| o.status == Fail) || exercise.ticks > exercise.timeout {
                 info!("Fail exercise");
                 commands.entity(exercise_id).despawn_recursive();
@@ -355,9 +379,10 @@ pub fn change_exercise(
             for output in exercise.outputs.iter() {
                 exercise_entity.with_children(|parrent| {
                     parrent.spawn(ExpectedOutput {
+                        expectation: output.1,
                         position: output.0.clone(),
-                        from: output.1,
-                        until: output.2,
+                        from: output.2,
+                        until: output.3,
                         status: Inactive,
                     });
                 });
@@ -382,6 +407,7 @@ pub fn destroy_level(
     for entity in exercises.iter() {
         commands.entity(entity).despawn_recursive();
     }
+    commands.remove_resource::<WorldState>();
 }
 
 fn spawn_level(

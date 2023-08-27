@@ -1,0 +1,63 @@
+25 13
+false
+e e e e e e e e e e e e e e e e e e e e e e e e e
+e e e e e e e e e e e e e e e e e e e e e e e e e
+e e e e e e e e e e e e e e e e e e e e e e e e e
+e e W W e e e e e e e e e e e e e e e e e e e e e
+e e e e e e e e e e e e e e e e e e e e e e e e e
+e e e e e e e e e e e e e e e e e e e e E E E E E
+e e e e e e e e e e e e e e e e e e e e W W W W E
+e e e e e e e e e e e e e e e e e e e e E E E E E
+e e e e e e e e e e e e e e e e e e e e e e e e e
+e e W W e e e e e e e e e e e e e e e e e e e e e
+e e e e e e e e e e e e e e e e e e e e e e e e e
+e e e e e e e e e e e e e e e e e e e e e e e e e
+e e e e e e e e e e e e e e e e e e e e e e e e e
+4
+Logic AND
+There are two signal producer on the left side
+Receiver on the right should receive have signal
+Avoid backpropagation
+
+30
+2
+1 2 3
+1 2 9
+3
+false 3 30 2 3
+false 3 30 2 9
+true 0 30 23 6
+Exercise Two
+There is only one signal producer on the left top side
+Receiver on the right shouldn't receive have signal
+Avoid backpropagation
+
+30
+1
+1 2 3
+3
+false 3 30 2 3
+false 3 30 2 9
+false 0 30 23 6
+Exercise Three
+There is only one signal producer on the left bottom side
+Receiver on the right shouldn't receive have signal
+Avoid backpropagation
+
+30
+1
+1 2 9
+3
+false 3 30 2 3
+false 3 30 2 9
+false 0 30 23 6
+Exercise Four
+There aren't any signal producers
+Receiver on the right shouldn't receive have signal
+
+30
+0
+3
+false 3 30 2 3
+false 3 30 2 9
+false 0 30 23 6

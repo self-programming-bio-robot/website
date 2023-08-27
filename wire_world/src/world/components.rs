@@ -15,6 +15,7 @@ pub struct ElectronSpawn {
 
 #[derive(Component, Debug, Clone)]
 pub struct ExpectedOutput {
+    pub expectation: bool,
     pub position: Point,
     pub from: usize,
     pub until: usize,
@@ -71,8 +72,10 @@ impl CellType {
     pub fn base_color(self) -> Color {
         match self {
             ELECTRON(_) => Color::YELLOW,
-            WIRE(_) => Color::BLACK,
+            WIRE(true) => Color::BLACK,
+            WIRE(false) => Color::DARK_GRAY,
             TAIL(_) => Color::RED,
+            EMPTY(true) => Color::DARK_GREEN,
             _others => Color::LIME_GREEN,
         }
     }

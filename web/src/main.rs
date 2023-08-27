@@ -1,5 +1,4 @@
 pub mod wire_world;
-pub mod components;
 
 use std::rc::Rc;
 use yew::prelude::*;
@@ -18,7 +17,7 @@ enum Route {
     NotFound,
     #[at("/pages/:name")]
     Page { name: String },
-    #[at("/wire-world")]
+    #[at("/pages/wire-world")]
     WireWorld,
 }
 

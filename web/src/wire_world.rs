@@ -1,4 +1,4 @@
-use gloo::console::info;
+
 use web_sys::MouseEvent;
 use yew::{function_component, Html, html, Callback, use_effect};
 use zhdanov_wire_world::GamePlugin;

@@ -5,10 +5,10 @@ use bevy_tweening::{Animator, EaseFunction, RepeatStrategy, Tween};
 
 use bevy_tweening::lens::UiPositionLens;
 use crate::{GameState, LevelDescription, LEVELS};
+use crate::control::ExitGame;
 use crate::ui::component::{ButtonState, LevelMenuUI, LevelsListNode, MenuActions};
 
 use crate::world::resources::{LevelConfig};
-
 
 
 pub fn spawn_level_menu(
@@ -22,6 +22,37 @@ pub fn spawn_level_menu(
                                 6, 2, None, None);
     let texture_atlas_handle = texture_atlases.add(texture_atlas);
     let font = asset_server.load("fonts/FiraSans-Bold.ttf");
+
+    #[cfg(not(target_arch = "wasm32"))]
+    commands.spawn((
+        ButtonBundle {
+            style: Style {
+                position_type: PositionType::Absolute,
+                right: Val::Px(25.0),
+                top: Val::Px(25.0),
+                width: Val::Px(64.0),
+                height: Val::Px(64.0),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                ..default()
+            },
+            ..default()
+        },
+        ButtonState::default(),
+        MenuActions::Close,
+        LevelMenuUI::default(),
+    )).with_children(|builder| {
+        builder.spawn(AtlasImageBundle {
+            texture_atlas: texture_atlas_handle.clone(),
+            texture_atlas_image: UiTextureAtlasImage {
+                index: 10,
+                flip_y: false,
+                flip_x: false,
+            },
+            transform: Transform::from_scale(Vec3::splat(2.0)),
+            ..default()
+        });
+    });
 
     commands
         .spawn((
@@ -268,6 +299,7 @@ pub fn button_state(
 
 pub fn button_click(
     mut actions: EventReader<MenuActions>,
+    mut exit: EventWriter<ExitGame>,
     mut level_config: ResMut<LevelConfig>,
     mut game_state: ResMut<NextState<GameState>>,
     mut level_list: Query<(Entity, &mut Style, &mut Animator<Style>, &Node, &Parent), With<LevelsListNode>>,
@@ -305,7 +337,9 @@ pub fn button_click(
                     }
                 }
             }
-            _other => {}
+            MenuActions::Close => {
+                exit.send(ExitGame);
+            }
         }
     }
 }

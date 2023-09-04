@@ -1,0 +1,32 @@
+19 11
+false
+E E E E E E E E E E E E E E E E E E E
+E E E E E E E E E E E E E E E E E E E
+e e e e e e e e W e e e e e e e e e e
+e e e e e e e e W e e e e e e e e e e
+e e e e e e e e W e e e e e e e e e e
+e e e e e e e e W e e e e e e e e e e
+e e e W W W W W e e e e e e e e e e e
+e e e e e e e e W  e e e e e e e e e
+e e e e e e e e e W W W W e e e e e e
+E E E E E E E E E E E E E E E E E E E
+E E E E E E E E E E E E E E E E E E E
+2
+Blocker
+Top signal should block left signal, but not vice verse
+First there will start two signal
+
+15
+2
+1 3 6
+1 8 2
+1
+false 0 15 12 8
+Exercise two
+Now there will start only top signal, it shouldn't be blocked
+
+15
+1
+1 8 2
+1
+true 0 15 12 8

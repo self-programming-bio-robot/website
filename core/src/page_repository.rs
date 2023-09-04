@@ -33,7 +33,7 @@ mod tests {
     #[test]
     fn success_create_default_page_local_repository() {
         let repo = PageLocalRepository::default();
-        assert_eq!(repo.pages.len(), 4);
+        assert_eq!(repo.pages.len(), 6);
     }
     
     #[test]
@@ -57,7 +57,7 @@ mod tests {
             assert_eq!(page.id, "main");
             assert_eq!(page.title, "Zhdanov Dev Website".to_string());
             assert!(page.content.len() > 0);
-            assert_eq!(page.links.len(), 2);
+            assert_eq!(page.links.len(), 3);
         }
     }
 }

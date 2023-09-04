@@ -9,13 +9,12 @@ env:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
-    - name: Install dependecies
-      run: sudo apt install librust-alsa-sys-dev pkg-config libusb-1.0-0-dev libftdi1-dev libudev-sys
+    - name: Install Dependencies
+      run: sudo apt-get update; sudo apt-get install pkg-config libx11-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
     - name: Build
       run: cargo build --verbose
     - name: Run tests

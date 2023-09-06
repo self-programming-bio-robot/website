@@ -4,5 +4,6 @@ members = [
     "core",
     "terminal",
     "web",
-    "wire_world"
+    "wire_world",
+    "car_ai"
 ]

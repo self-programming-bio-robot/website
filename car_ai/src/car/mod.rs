@@ -2,7 +2,7 @@ pub mod components;
 pub mod services;
 
 use bevy::prelude::*;
-use crate::car::services::{car_physics, car_update};
+use crate::car::services::{car_controller, car_physics, car_update};
 
 pub struct CarPlugin;
 
@@ -11,6 +11,7 @@ impl Plugin for CarPlugin {
         app
             .add_systems(Update, car_physics)
             .add_systems(Update, car_update)
+            .add_systems(Update, car_controller)
         ;
     }
 }

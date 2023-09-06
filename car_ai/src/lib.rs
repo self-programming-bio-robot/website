@@ -3,7 +3,7 @@ pub mod car;
 use bevy::core_pipeline::clear_color::ClearColorConfig;
 use bevy::prelude::*;
 use crate::car::CarPlugin;
-use crate::car::components::{CAR_SIZE, CarBundle};
+use crate::car::components::{CAR_SIZE, CarBundle, KeyboardController};
 
 pub struct MainPlugin;
 
@@ -35,8 +35,15 @@ pub fn init(
                 camera_2d: Camera2d {
                     clear_color: ClearColorConfig::Custom(Color::DARK_GRAY)
                 },
+                projection: OrthographicProjection {
+                    scale: 0.1,
+                    ..default()
+                },
                 ..default()
             },
         ));
-    commands.spawn(CarBundle::create(Vec2::new(0.0, 0.0), Color::BLUE));
+    commands.spawn((
+        CarBundle::create(Vec2::new(0.0, 0.0), Color::BLUE),
+        KeyboardController {},
+    ));
 }

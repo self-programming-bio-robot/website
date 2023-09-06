@@ -1,30 +1,43 @@
+use std::f32::consts::PI;
 use bevy::math::Vec2;
 use bevy::prelude::*;
 
-pub const CAR_SIZE: Vec2 = Vec2::new(100.0, 40.0);
+pub const CAR_SIZE: Vec2 = Vec2::new(5.0, 2.0);
+pub const AIR_FRICTION: f32 = 0.42;
+pub const WHEEL_FRICTION: f32 = AIR_FRICTION * 30.0;
 
 #[derive(Component)]
 pub struct Car {
     pub size: Vec2,
+    pub mass: f32,
     pub position: Vec2,
     pub direction: Vec2,
     pub velocity: Vec2,
-    pub max_speed: f32,
-    pub acceleration: f32,
     pub friction: Vec2,
+    pub engine_power: f32,
+    pub brakes_power: f32,
+    pub max_eversion: f32,
+
+    pub acceleration: f32,
+    pub brake: f32,
+    pub steering_wheel_angle: f32,
 }
 
 impl Default for Car {
     fn default() -> Self {
         Self {
             size: CAR_SIZE,
+            mass: 1500.0,
             position: Vec2::default(),
-            velocity: Vec2::new(10.0, 5.0),
+            velocity: Vec2::default(),
             direction: Vec2::new(1.0, 0.0),
-            max_speed: 50.0,
-            acceleration: 10.0,
             friction: Vec2::new(0.99, 0.3),
-
+            engine_power: 5000.0,
+            brakes_power: 10000.0,
+            max_eversion: PI / 8.0,
+            acceleration: 0.0,
+            brake: 0.0,
+            steering_wheel_angle: 0.0,
         }
     }
 }

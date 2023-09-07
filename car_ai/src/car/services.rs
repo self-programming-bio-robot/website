@@ -22,18 +22,25 @@ pub fn car_physics(
         let dt = time.delta().as_secs_f32();
 
         // apply friction by the side
-        let air_friction_force = -AIR_FRICTION * car.velocity * car.velocity.length();
-        let slip_friction_force = -WHEEL_FRICTION * car.velocity;
+        let velocity = car.velocity;
+        car.add_force_at_center(-AIR_FRICTION * velocity * velocity.length());
+        car.add_force_at_center(-WHEEL_FRICTION * velocity);
 
-        let mut force = air_friction_force + slip_friction_force;
+        let mut force = Vec2::default();
+        let mut torque: f32 = 0.0;
         for af in car.applied_forces.iter() {
             force += af.1;
+            torque += af.1.perp_dot(af.0);
         }
         car.applied_forces.clear();
 
         let a = force / car.mass;
         car.velocity = car.velocity + a *  dt;
         car.position = car.position + car.velocity * dt;
+
+        let torque = torque / car.mass;
+        car.torque = car.torque + torque * dt;
+        car.direction = Vec2::from_angle(-car.torque * dt).rotate(car.direction);
     }
 }
 
@@ -87,17 +94,25 @@ pub fn mouse_controller(
                     world_position,
                     Color::PURPLE
                 );
+
                 let force = world_position - global;
                 let (_, mut car, _, global) = cars.get_mut(entity).unwrap();
                 let force = car.mass * force;
+
                 car.applied_forces.push((local, force));
-                *start_point = Some((entity, global.translation().truncate() + local, local));
+
+                let angle = Vec2::X.angle_between(car.direction);
+                let local_position = Vec2::from_angle(angle).rotate(local);
+                *start_point = Some((entity, global.translation().truncate() + local_position, local));
             }
         }
 
         for _ in events.get_just_pressed() {
             for (entity, mut car, sprite, global) in cars.iter_mut() {
                 let local_position = world_position - global.translation().truncate();
+                let angle = Vec2::X.angle_between(car.direction);
+                let local_position = Vec2::from_angle(-angle).rotate(local_position);
+
                 if let Some(size) = sprite.custom_size {
                     let size = size / 2.0;
                     if local_position.x < size.x

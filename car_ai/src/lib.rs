@@ -36,7 +36,7 @@ pub fn init(
                     clear_color: ClearColorConfig::Custom(Color::DARK_GRAY)
                 },
                 projection: OrthographicProjection {
-                    scale: 0.1,
+                    scale: 0.01,
                     ..default()
                 },
                 ..default()

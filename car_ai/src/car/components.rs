@@ -14,6 +14,7 @@ pub struct Car {
     pub position: Vec2,
     pub direction: Vec2,
     pub velocity: Vec2,
+    pub torque: f32,
     pub friction: Vec2,
     pub engine_power: f32,
     pub brakes_power: f32,
@@ -34,6 +35,7 @@ impl Default for Car {
             mass_center: Vec2::default(),
             position: Vec2::default(),
             velocity: Vec2::default(),
+            torque: 0.0,
             direction: Vec2::new(1.0, 0.0),
             friction: Vec2::new(0.99, 0.3),
             engine_power: 5000.0,
@@ -44,6 +46,17 @@ impl Default for Car {
             steering_wheel_angle: 0.0,
             applied_forces: Vec::new(),
         }
+    }
+}
+
+impl Car {
+
+    pub fn add_force(&mut self, force: Vec2, at: Vec2) {
+        self.applied_forces.push((force, at));
+    }
+
+    pub fn add_force_at_center(&mut self, force: Vec2) {
+        self.add_force(force, Vec2::new(0.0, 0.0));
     }
 }
 

@@ -9,6 +9,7 @@ pub const WHEEL_FRICTION: f32 = AIR_FRICTION * 30.0;
 #[derive(Component)]
 pub struct Car {
     pub size: Vec2,
+    pub mass_center: Vec2,
     pub mass: f32,
     pub position: Vec2,
     pub direction: Vec2,
@@ -21,6 +22,8 @@ pub struct Car {
     pub acceleration: f32,
     pub brake: f32,
     pub steering_wheel_angle: f32,
+
+    pub applied_forces: Vec<(Vec2, Vec2)>,
 }
 
 impl Default for Car {
@@ -28,6 +31,7 @@ impl Default for Car {
         Self {
             size: CAR_SIZE,
             mass: 1500.0,
+            mass_center: Vec2::default(),
             position: Vec2::default(),
             velocity: Vec2::default(),
             direction: Vec2::new(1.0, 0.0),
@@ -38,6 +42,7 @@ impl Default for Car {
             acceleration: 0.0,
             brake: 0.0,
             steering_wheel_angle: 0.0,
+            applied_forces: Vec::new(),
         }
     }
 }

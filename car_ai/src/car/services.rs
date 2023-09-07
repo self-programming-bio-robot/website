@@ -19,56 +19,21 @@ pub fn car_physics(
             car.position + car.velocity,
             Color::RED
         );
-        let velocity = car.velocity.length();
-        let f_acceleration: Vec2 = if car.acceleration > 0.0 {
-            car.direction * car.acceleration * car.engine_power
-        } else if car.brake > 0.0 {
-            car.direction * car.brake * -car.brakes_power
-        } else {
-            Vec2::new(0.0, 0.0)
-        };
-
         let dt = time.delta().as_secs_f32();
 
-        let f_air = -AIR_FRICTION * car.velocity * velocity ;
-        let f_wheel = -WHEEL_FRICTION * car.velocity;
-        let force = f_acceleration + f_air + f_wheel;
+        // apply friction by the side
+        let air_friction_force = -AIR_FRICTION * car.velocity * car.velocity.length();
+        let slip_friction_force = -WHEEL_FRICTION * car.velocity;
+
+        let mut force = air_friction_force + slip_friction_force;
+        for af in car.applied_forces.iter() {
+            force += af.1;
+        }
+        car.applied_forces.clear();
+
         let a = force / car.mass;
-        let a = a * dt;
-
-        if velocity < a.length() && car.brake > 0.0 { // todo: add reverse
-            car.velocity = Vec2::new(0.0, 0.0);
-        } else {
-            car.velocity = car.velocity + a;
-        }
-        car.velocity = car.direction * car.velocity.length();
-
-        if car.steering_wheel_angle != 0.0 {
-            let l = 0.8;
-            let r = (car.size.x * l) / (car.steering_wheel_angle * car.max_eversion).sin();
-            let w = car.velocity.length() / r;
-            let w = w * dt;
-            car.direction = Vec2::from_angle(w).rotate(car.direction);
-
-            let perp = car.direction.perp() * car.steering_wheel_angle;
-            gizmos.line_2d(
-                car.position,
-                car.position + perp * 100.0,
-                Color::YELLOW
-            );
-            let fw = car.position + car.direction * car.size.x * l / 2.0;
-            gizmos.line_2d(
-                fw,
-                fw + Vec2::from_angle(car.steering_wheel_angle * car.max_eversion)
-                    .rotate(perp) * 100.0,
-                Color::YELLOW
-            );
-        }
-
+        car.velocity = car.velocity + a *  dt;
         car.position = car.position + car.velocity * dt;
-        car.acceleration = 0.0;
-        car.brake = 0.0;
-        car.steering_wheel_angle = 0.0;
     }
 }
 
@@ -96,6 +61,57 @@ pub fn car_controller(
             car.steering_wheel_angle = 1.0;
         } else if keyboard_input.pressed(KeyCode::Right) {
             car.steering_wheel_angle = -1.0;
+        }
+    }
+}
+
+pub fn mouse_controller(
+    events: Res<Input<MouseButton>>,
+    windows: Query<&Window>,
+    mut camera_q: Query<(&Camera, &GlobalTransform, &mut Transform)>,
+    mut cars: Query<(Entity, &mut Car, &Sprite, &GlobalTransform)>,
+    mut start_point: Local<Option<(Entity,Vec2, Vec2)>>,
+    mut gizmos: Gizmos,
+) {
+    let (camera, camera_transform, mut transform) = camera_q.single_mut();
+    let window = windows.single();
+
+    if let Some(world_position) = window.cursor_position()
+        .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor))
+        .map(|ray| ray.origin.truncate())
+    {
+        for _ in events.get_pressed() {
+            if let Some((entity, global, local)) = start_point.take() {
+                gizmos.line_2d(
+                    global,
+                    world_position,
+                    Color::PURPLE
+                );
+                let force = world_position - global;
+                let (_, mut car, _, global) = cars.get_mut(entity).unwrap();
+                let force = car.mass * force;
+                car.applied_forces.push((local, force));
+                *start_point = Some((entity, global.translation().truncate() + local, local));
+            }
+        }
+
+        for _ in events.get_just_pressed() {
+            for (entity, mut car, sprite, global) in cars.iter_mut() {
+                let local_position = world_position - global.translation().truncate();
+                if let Some(size) = sprite.custom_size {
+                    let size = size / 2.0;
+                    if local_position.x < size.x
+                        && local_position.x > -size.x
+                        && local_position.y < size.y
+                        && local_position.y > -size.y {
+                        *start_point = Some((entity, world_position.clone(), local_position.clone()));
+                    }
+                }
+            }
+        }
+
+        for _ in events.get_just_released() {
+            *start_point = None;
         }
     }
 }

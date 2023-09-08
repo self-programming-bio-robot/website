@@ -23,8 +23,17 @@ pub fn car_physics(
 
         // apply friction by the side
         let velocity = car.velocity;
-        car.add_force_at_center(-AIR_FRICTION * velocity * velocity.length());
-        car.add_force_at_center(-WHEEL_FRICTION * velocity);
+        let v = velocity.length();
+        if v > 0.0 {
+            let friction = car.friction * car.mass * 9.8;
+            let f1 = car.direction.dot(car.velocity) / v;
+            let f1 = f1 * car.direction * friction.x * v;
+            let f2 = car.direction.perp().dot(car.velocity) / v;
+            let f2 = f2 * car.direction.perp() * friction.y * v;
+
+            car.add_force_at_center(-f1);
+            car.add_force_at_center(-f2);
+        }
 
         let mut force = Vec2::default();
         let mut torque: f32 = 0.0;
@@ -40,6 +49,14 @@ pub fn car_physics(
 
         let torque = torque / car.mass;
         car.torque = car.torque + torque * dt;
+        car.torque = car.torque * 0.98;
+
+        gizmos.line_2d(
+            car.position,
+            car.position + Vec2::Y * car.torque,
+            Color::YELLOW_GREEN
+        );
+
         car.direction = Vec2::from_angle(-car.torque * dt).rotate(car.direction);
     }
 }
@@ -98,10 +115,10 @@ pub fn mouse_controller(
                 let force = world_position - global;
                 let (_, mut car, _, global) = cars.get_mut(entity).unwrap();
                 let force = car.mass * force;
-
-                car.applied_forces.push((local, force));
-
                 let angle = Vec2::X.angle_between(car.direction);
+                let force_local = Vec2::from_angle(-angle).rotate(force);
+                car.add_force(force_local, local);
+
                 let local_position = Vec2::from_angle(angle).rotate(local);
                 *start_point = Some((entity, global.translation().truncate() + local_position, local));
             }

@@ -1,0 +1,19 @@
+Next following the biography of Nikolai Zhdanov:
+I was born in Kirov, Russia and grew up in a nearby town in 1992. Since
+childhood, I have had a passion for engineering mechanisms and a keen interest
+in physics, which continued throughout my schooling.
+
+At the age of six, my parents bought our first computer, which initially served
+as a source of entertainment through playing games. However, soon after, I
+began modifying components of games and the operating system, finding it to be
+a fascinating challenge. As I created mods and maps for games, I stumbled upon
+HiAsm, a non-coding IDE, which marked my first steps into programming.
+
+As my curiosity grew, I wanted to create more components in HiAsm, but soon
+realized that I needed to use programming languages like FreePascal or Delphi.
+Unfortunately, I didn't have access to the internet at that time, so someone
+gave me a book on Delphi 7. Of course I couldn't create new components for
+HiAsm, it was too difficult for me. But this didn't matter, because I could
+make program using Delphi🎉.
+============================================================================
+Use this biography to answer the user's question.

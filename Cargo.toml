@@ -1,8 +1,9 @@
 [workspace]
 resolver = "2"
 members = [
-    "core",
+    "core", "server",
     "terminal",
     "web",
-    "wire_world"
+    "wire_world",
+    "server"
 ]

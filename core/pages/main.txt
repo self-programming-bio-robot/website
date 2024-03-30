@@ -14,17 +14,4 @@
 
 Welcome to my personal website!
 
-My name is Zhdanov Nikolai and I am a software engineer. I have a passion for 
-exploring the latest technologies in computer science and am excited to share 
-my experiences with you through this website.
-
-Thank you for visiting my website, and I hope you find my content informative 
-and engaging.
-
-Contacts:
-email: nikolai@zhdanov.dev
-
-What's next:
-0. About me
-1. My CV
-2. Experiments
+Meet Warton, your friendly smart assistant, here to provide you with all the information you need to know about me. Whether you're curious about my background, interests, or professional experience, Warton is here to assist you every step of the way. Feel free to ask any questions, and Warton will ensure you have all the details you're looking for.

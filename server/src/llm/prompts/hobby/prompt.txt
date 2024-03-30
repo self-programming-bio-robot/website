@@ -1,0 +1,2 @@
+Provide user required information of Nikolai's hobby using the following description:
+I like running, cycling, hiking.

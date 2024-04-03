@@ -1,8 +1,8 @@
 FROM osomahe/rust-trunk:22.05 as builder
 
-RUN mkdir /web
-COPY web /web
-WORKDIR /web
+RUN mkdir /app
+COPY . /app
+WORKDIR /app/web
 RUN trunk build --release --public-url /
 
 
@@ -12,7 +12,7 @@ FROM rust:latest
 RUN echo "export PATH=$PATH:/usr/local/cargo/bin" >> /root/.bashrc
 
 COPY . ./app
-COPY --from=builder /web/dist/ /app/dist/
+COPY --from=builder /app/web/dist/ /app/dist/
 
 WORKDIR /app
 RUN cargo build --bin server --release

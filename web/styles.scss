@@ -97,10 +97,10 @@ body {
   }
 
   .screen pre {
-    font-size: var(--font-size-adapt);
+    font-size: var(--font-size-adapt) !important;
   }
   .input {
-    font-size: var(--font-size-adapt);
+    font-size: var(--font-size-adapt) !important;
   }
 }
 

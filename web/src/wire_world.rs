@@ -1,12 +1,12 @@
 
 use web_sys::MouseEvent;
 use yew::{function_component, Html, html, Callback, use_effect};
-use zhdanov_wire_world::GamePlugin;
+// use zhdanov_wire_world::GamePlugin;
 
 #[function_component(WireWorld)]
 pub fn wire_world() -> Html {
     use_effect(|| {
-        GamePlugin::start();
+        // GamePlugin::start();
     });
 
     html! {

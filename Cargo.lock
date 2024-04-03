@@ -6183,7 +6183,6 @@ dependencies = [
  "yew-hooks",
  "yew-router",
  "zhdanov_website_core",
- "zhdanov_wire_world",
 ]
 
 [[package]]

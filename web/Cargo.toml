@@ -22,5 +22,9 @@ features = ["HtmlCanvasElement", "CanvasRenderingContext2d"]
 [dependencies.zhdanov_website_core]
 path = "../core"
 
-[dependencies.zhdanov_wire_world]
-path = "../wire_world"
+#[dependencies.zhdanov_wire_world]
+#path = "../wire_world"
+
+[profile.release]
+lto = true
+opt-level = 's'

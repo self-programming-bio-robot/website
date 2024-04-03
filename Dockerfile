@@ -1,4 +1,4 @@
-FROM osomahe/rust-trunk as builder
+FROM osomahe/rust-trunk:22.05 as builder
 
 RUN mkdir /web
 COPY web /web

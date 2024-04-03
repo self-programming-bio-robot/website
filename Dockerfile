@@ -1,8 +1,13 @@
-FROM osomahe/rust-trunk:22.05 as builder
+FROM rust:latest as builder
 
+RUN echo "export PATH=$PATH:/usr/local/cargo/bin" >> /root/.bashrc
 RUN mkdir /app
 COPY . /app
 WORKDIR /app/web
+
+RUN rustup target add wasm32-unknown-unknown
+RUN cargo install trunk
+
 RUN trunk build --release --public-url /
 
 

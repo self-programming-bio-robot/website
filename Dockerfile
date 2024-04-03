@@ -24,4 +24,4 @@ RUN cargo build --bin server --release
 
 ENV PORT 8080
 
-ENTRYPOINT ["cargo", "run", "--bin", "server", "--release", "--", "--port", "$PORT", "--static-dir", "dist"]
+ENTRYPOINT cargo run --bin server --release -- --port $PORT --static-dir dist

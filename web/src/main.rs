@@ -1,20 +1,24 @@
+use std::cell::{RefCell, RefMut};
 use std::rc::Rc;
 
 use futures_util::StreamExt;
-use gloo::console::{console, console_dbg};
 use gloo::net::http::Request;
 use wasm_bindgen::JsCast;
 use wasm_streams::ReadableStream;
-use web_sys::HtmlInputElement;
+use web_sys::HtmlElement;
 use web_sys::js_sys::Uint8Array;
 use yew::prelude::*;
-use yew_hooks::{use_list, use_update};
+use yew_hooks::{use_event_with_window, use_list, use_update};
 use yew_router::prelude::*;
 
 use wire_world::WireWorld;
 use zhdanov_website_core::page_repository::{PageLocalRepository, PageRepository};
+use zhdanov_website_core::string_utils::{split_line_by_limit};
 
 pub mod wire_world;
+
+const ASSISTANT_NAME: &str = "Warton";
+const USER_NAME: &str = "You";
 
 #[derive(Clone, Routable, PartialEq)]
 enum Route {
@@ -59,9 +63,26 @@ fn article_page(props: &ArticleProps) -> Html {
     let assistant_response = use_mut_ref(String::new);
     let is_generating = use_mut_ref(|| false);
     let update = use_update();
+    let pre_ref = use_node_ref();
+
+    fn scroll_bottom(pre_ref: NodeRef) {
+        if let Some(node) = pre_ref.get() {
+            if let Some(element) = node.dyn_ref::<HtmlElement>() {
+                element.set_scroll_top(element.scroll_height());
+            }
+        }
+    }
+
+    fn prepare_string(text: &String) -> String {
+        text.lines()
+            .flat_map(|line| {
+                split_line_by_limit(line, 80)
+            })
+            .collect::<Vec<String>>()
+            .join("\n")
+    }
 
     if let Some(page_content) = context.database.get_page(&props.name[..]) {
-
         let insert_text = {
             let messages = messages.clone();
             Callback::from(move |x: String| {
@@ -76,7 +97,7 @@ fn article_page(props: &ArticleProps) -> Html {
             let messages = messages.clone();
             Callback::from(move |message: String| {
                 messages.push(Message {
-                    content: message,
+                    content: prepare_string(&format!("{}: {}", USER_NAME, message)),
                     is_assistant: false,
                 });
             })
@@ -88,12 +109,14 @@ fn article_page(props: &ArticleProps) -> Html {
             let update = update.clone();
 
             Callback::from(move |()| {
-                let mut assistant_response = assistant_response.borrow_mut();
+                let mut assistant_response: RefMut<String> = assistant_response.borrow_mut();
                 let mut is_generating = is_generating.borrow_mut();
 
-                console_dbg!("Stream started");
                 *is_generating = true;
                 assistant_response.clear();
+                assistant_response.push_str(ASSISTANT_NAME);
+                assistant_response.push_str(": ");
+
                 update();
             })
         };
@@ -101,12 +124,18 @@ fn article_page(props: &ArticleProps) -> Html {
         let update_ai_stream = {
             let assistant_response = assistant_response.clone();
             let update = update.clone();
+            let pre_ref = pre_ref.clone();
+            let buffer = RefCell::new(ASSISTANT_NAME.to_owned() + ": ");
 
-            Callback::from(move |message: String| {
-                let mut assistant_response = assistant_response.borrow_mut();
-                console_dbg!("Stream updated", message);
-                assistant_response.push_str(message.clone().as_str());
+            Callback::from(move |chunk: String| {
+                let mut assistant_response: RefMut<String> = assistant_response.borrow_mut();
+                let mut buffer = buffer.borrow_mut();
+                buffer.push_str(chunk.clone().as_str());
+                *assistant_response = prepare_string(&buffer);
+
                 update();
+
+                scroll_bottom(pre_ref.clone());
             })
         };
 
@@ -114,54 +143,55 @@ fn article_page(props: &ArticleProps) -> Html {
             let messages = messages.clone();
             let is_generating = is_generating.clone();
             let assistant_response = assistant_response.clone();
+            let pre_ref = pre_ref.clone();
 
             Callback::from(move |()| {
                 let mut is_generating = is_generating.borrow_mut();
 
-                console_dbg!("Stream completed");
                 *is_generating = false;
+
                 messages.push(Message {
-                    content: assistant_response.borrow().to_string(),
+                    content: prepare_string(&assistant_response.borrow()),
                     is_assistant: true,
                 });
+
+                scroll_bottom(pre_ref.clone());
             })
         };
 
         let messages_string = messages.current().iter()
             .map(|message| {
-                if message.is_assistant {
-                    format!("Assistant: {}", message.content)
-                } else {
-                    format!("You: {}", message.content)
-                }
+                message.content.clone()
             })
             .collect::<Vec<String>>()
             .join("\n\n");
 
         let messages_string = if *is_generating.borrow() {
-            format!("{}\n\nAssistant: {}", messages_string, assistant_response.borrow())
+            format!("{}\n\n{}", messages_string, assistant_response.borrow())
         } else {
             messages_string
         };
 
-
         let content = page_content.content.clone();
-        let links: Vec<String> = page_content.links.iter()
-            .map(|x| x.to_string())
-            .collect();
         let messages_string = format!("{}\n\n{}", content, messages_string);
 
         html! {
-            <div class="wrapper">
-                <ConsoleView
-                    text={messages_string} />
-                <ConsoleInput
-                    on_error={insert_text}
+            <div class="screen">
+                <div class="scanline"></div>
+                <div ref={pre_ref.clone()} class="view">
+                    <ConsoleView
+                        text={messages_string}
+                        is_generating={*is_generating.borrow()}
+                    />
+                    <ConsoleInput
+                        is_generating={*is_generating.borrow()}
+                        on_error={insert_text}
                         on_submit={add_user_message}
                         on_start_stream={start_ai_stream}
                         on_update_stream={update_ai_stream}
                         on_complete_stream={complete_ai_stream}
-                />
+                    />
+                </div>
             </div>
         }
     } else {
@@ -175,19 +205,21 @@ fn article_page(props: &ArticleProps) -> Html {
 pub struct ConsoleViewProps {
     #[prop_or(AttrValue::from(""))]
     pub text: AttrValue,
+    pub is_generating: bool
 }
 
 #[function_component(ConsoleView)]
 fn console_view(props: &ConsoleViewProps) -> Html {
     html! {
         <pre>
-            {props.text.clone()}
+            {props.text.clone()}<span class="cursor" data-generating={props.is_generating.to_string()}>{"■"}</span>{"\n\n"}
         </pre>
     }
 }
 
 #[derive(Properties, PartialEq, Clone)]
 pub struct ConsoleInputProps {
+    pub is_generating: bool,
     pub on_error: Callback<String>,
     pub on_submit: Callback<String>,
     pub on_start_stream: Callback<()>,
@@ -198,20 +230,11 @@ pub struct ConsoleInputProps {
 #[function_component(ConsoleInput)]
 fn console_input(props: &ConsoleInputProps) -> Html {
     let input_text = use_state(String::new);
-    let input_ref = use_node_ref();
-    {
-        let input_ref = input_ref.clone();
-        use_effect_with(input_ref, |input_ref| {
-            let input = input_ref
-                .cast::<HtmlInputElement>()
-                .expect("could not attach to input field");
-            input.focus().unwrap();
-        });
-    }
 
     let handle_submit = {
         let ConsoleInputProps {
-            on_error,
+            is_generating: _,
+            on_error: _,
             on_submit,
             on_start_stream,
             on_update_stream,
@@ -221,8 +244,7 @@ fn console_input(props: &ConsoleInputProps) -> Html {
         Callback::from({
             let input_text = input_text.clone();
 
-            move |event: SubmitEvent| {
-                event.prevent_default();
+            move |()| {
                 on_submit.emit(input_text.clone().to_string());
 
                 wasm_bindgen_futures::spawn_local({
@@ -261,31 +283,49 @@ fn console_input(props: &ConsoleInputProps) -> Html {
         })
     };
 
-    let handle_input = {
+    {
         let input_text = input_text.clone();
-        Callback::from(move |event: InputEvent| {
-            let input = event.target();
-            let input = input.and_then(|t| t.dyn_into::<HtmlInputElement>().ok());
-            let input = input.unwrap();
+        let is_generating = props.is_generating.clone();
+        use_event_with_window("keypress", move |e: KeyboardEvent| {
+            let input_text = input_text.clone();
+            if is_generating {
+                return;
+            }
+            input_text.set(input_text.to_string() + e.key().as_str());
+        });
+    }
+    {
+        let input_text = input_text.clone();
+        let handle_submit = handle_submit.clone();
+        let is_generating = props.is_generating.clone();
 
-            input_text.set(input.value());
-        })
-    };
+        use_event_with_window("keydown", move |e: KeyboardEvent| {
+            if is_generating {
+                return;
+            }
+            match e.code().as_str() {
+                "Backspace" => {
+                    let mut text = input_text.to_string();
+                    text.pop();
+                    input_text.set(text);
+                }
+                "Enter" => {
+                    e.prevent_default();
+                    handle_submit.emit(())
+                }
+                _ => {}
+            }
+        });
+    }
 
     html! {
-        <p class="input">
-            <form onsubmit={handle_submit}>
-                <label>{">\u{00a0}"}</label>
-                <input 
-                    ref={input_ref} 
-                    oninput={handle_input} 
-                    value={input_text.clone().to_string()} />
-            </form>
-        </p>
+        <span class="input" data-locked={props.is_generating.to_string()}>
+            {input_text.to_string()}
+        </span>
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct Message {
     pub content: String,
     pub is_assistant: bool,

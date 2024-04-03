@@ -14,7 +14,7 @@ impl<'life> Default for PageLocalRepository<'life> {
     fn default() -> Self {
         Self {
             pages: pages().into_iter()
-                .map(|page| (page.id.clone(), page))
+                .map(|page| (page.id, page))
                 .collect(), 
         }        
     }    

@@ -1,17 +1,20 @@
-       ███████╗██╗  ██╗██████╗  █████╗ ███╗   ██╗ ██████╗ ██╗   ██╗
-       ╚══███╔╝██║  ██║██╔══██╗██╔══██╗████╗  ██║██╔═══██╗██║   ██║
-         ███╔╝ ███████║██║  ██║███████║██╔██╗ ██║██║   ██║██║   ██║
-        ███╔╝  ██╔══██║██║  ██║██╔══██║██║╚██╗██║██║   ██║╚██╗ ██╔╝
-       ███████╗██║  ██║██████╔╝██║  ██║██║ ╚████║╚██████╔╝ ╚████╔╝ 
-       ╚══════╝╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝   ╚═══╝  
-                           ██████╗ ███████╗██╗   ██╗               
-                           ██╔══██╗██╔════╝██║   ██║               
-                           ██║  ██║█████╗  ██║   ██║               
-                           ██║  ██║██╔══╝  ╚██╗ ██╔╝               
-                           ██████╔╝███████╗ ╚████╔╝                
-                           ╚═════╝ ╚══════╝  ╚═══╝                
-
+         ███████╗██╗  ██╗██████╗  █████╗ ███╗   ██╗ ██████╗ ██╗   ██╗
+         ╚══███╔╝██║  ██║██╔══██╗██╔══██╗████╗  ██║██╔═══██╗██║   ██║
+           ███╔╝ ███████║██║  ██║███████║██╔██╗ ██║██║   ██║██║   ██║
+          ███╔╝  ██╔══██║██║  ██║██╔══██║██║╚██╗██║██║   ██║╚██╗ ██╔╝
+         ███████╗██║  ██║██████╔╝██║  ██║██║ ╚████║╚██████╔╝ ╚████╔╝
+         ╚══════╝╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝   ╚═══╝
+                            ██████╗ ███████╗██╗   ██╗
+                            ██╔══██╗██╔════╝██║   ██║
+                            ██║  ██║█████╗  ██║   ██║
+                            ██║  ██║██╔══╝  ╚██╗ ██╔╝
+                            ██████╔╝███████╗ ╚████╔╝
+                            ╚═════╝ ╚══════╝  ╚═══╝
 
 Welcome to my personal website!
 
-Meet Warton, your friendly smart assistant, here to provide you with all the information you need to know about me. Whether you're curious about my background, interests, or professional experience, Warton is here to assist you every step of the way. Feel free to ask any questions, and Warton will ensure you have all the details you're looking for.
+Meet  Warton,  your friendly  smart assistant,  here to provide you with all the
+information  you  need  to  know  about  me.  Whether  you're  curious  about my
+background,  interests, or professional experience, Warton is here to assist you
+every step of the way.  Feel free to ask any questions,  and  Warton will ensure
+you have all the details you're looking for.

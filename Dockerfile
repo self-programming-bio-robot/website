@@ -1,4 +1,4 @@
-FROM zhdanovdev/rust-wasm-builer:0.1.0 as builder
+FROM zhdanovdev/rust-wasm-builder:latest as builder
 
 RUN mkdir /app
 COPY . /app

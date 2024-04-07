@@ -1,15 +1,11 @@
-FROM rust:latest as builder
+FROM zhdanovdev/rust-wasm-builer:0.1.0 as builder
 
-RUN echo "export PATH=$PATH:/usr/local/cargo/bin" >> /root/.bashrc
 RUN mkdir /app
 COPY . /app
 WORKDIR /app/web
 
-RUN rustup target add wasm32-unknown-unknown
-RUN cargo install trunk
-
 RUN trunk build --release --public-url /
-
+RUN wasm-opt -Oz -o dist/*.wasm dist/*.wasm
 
 #Base Container
 FROM rust:latest

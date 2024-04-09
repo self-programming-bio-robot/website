@@ -1,0 +1,12 @@
+## Roadmap:
+- [x] Map struct
+- [x] Cell struct
+- [x] Object struct
+- [x] Loading map from file
+- [ ] Agent struct
+- [ ] World struct
+- [ ] World tick
+- [ ] Agent movement
+- [ ] Agent vision
+- [ ] Agent action on object
+- [ ] Agent memory

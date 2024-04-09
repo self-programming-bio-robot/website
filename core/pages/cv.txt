@@ -1,58 +1,128 @@
-┌─────────────────────────────┬───────────────────────────────────────────────┐
-│,---, .     .                │                                               │
-│   /  |     |                │                                               │
-│  /   |-. ,-| ,-: ;-. ,-. . ,│ A   Software   Engineer  with  over  7  years │
-│ /    | | | | | | | | | | |/ │ experience. I  am  expert  in  development in │
-│'---' ' ' `-' `-` ' ' `-' '  │ distributed and scaled systems. In the last 5 │
-│.  .   ,       .             │ years   my   specialization   is   developing │
-│|\ | o |       |     o       │ microservice apps using  Java / Kotlin. I use │
-│| \| . | , ,-. | ,-: .       │ DevOps methodology  to  create  reliable  and │
-│|  | | |<  | | | | | |       │ high performance infrastructure.              │
-│'  ' ' ' ` `-' ' `-` '       │                                               │
-└─────────────────────────────┴───────────────────────────────────────────────┘
-========== CONTACT =========== ┌───────────────┐
- Foça, 959. Sk. 72-78, 48300   │WORK EXPERIENCE├──────────────────────────────
- Fethiye/Muğla, Turkey         └───────────────┘
- +90 534 852 85 99             Senior Software Engineer
- nikolai@zhdanov.dev           Alfa-bank, the largest private bank in Russia
-                               June 2020 to Present
-=== EDUCATIONAL BACKGROUND === 
- Vyatka State University of    Stack: Java/Kotlin, Spring Framework, Redis,  
- Humanities                      Hazelcast, MongoDB, Ansible, Mesos, Kubernetes
-                               Functions:
- Computer Science, Mathematics  ◉ Developing API and business logic for  mobile
- and Physics Faculty              apps at Alfa-Bank.
-                                ◉ Improving  reliability  and   performance  of 
- Bachelor of                      services. 
- Applied Mathematics and        ◉ Write  ansible  playbooks  to  configure  and 
- Computer Science                 deploy infrastructure.
-                                ◉ Mentoring new employees and interns.
- May 2014                      Results:
-                                ◉ Completion    of    multiple    API’s    with
-=== SKILLS & PROFICIENCIES ===    500 RPS in production.
- * Java / Kotlin                ◉ Developed    Zeebe   monitoring   app   (like
- * Spring Framework               camunda operate). Using React framework.
- * Redis                        ◉ Trained  an  intern  to  be a  Java  Software
- * Mongo DB                       Engineer
- * Kubernetes                            ──────────────────────────────
- * Ansible                     Senior Software Engineer
- * React                       Lorus SCM, an expert in the field of logistics
- * TypeScript                  February 2019 to June 2020
+                               Nikolai Zhdanov
+                           Java Software Engineer
+            Tbilisi, Georgia ⦁ +995 550 059 499 ⦁ nikolai@zhdanov.dev
+              www.linkedin.com/in/nikolai-zhdanov ⦁ www.zhdanov.dev
 
-== COURSES & CERTIFICATIONS == Stack: Java, Kotlin, Spring Framework, RabbitMQ,
-Java Software Engineer Course    PostgreSQL, MongoDB, Apache poi, Apache Kafka,
-Innopolis University             Docker Redis, Elastic search, Camunda, BPM
-                               Functions:
-January 2017                    ◉ Designing microservice architecture.
-                                ◉ Managed a team of developers, as team lead.
-Gained a diploma in             ◉ Configuring  infrastructure:   Docker  swarm,
-Java Backend Engineering          Mongo DB, Redis, etc
-                               Results:
-                                ◉ Implemented the CI/CD system by Gitlab CI and
-                                  Docker swarm,  that increased safety and time
-                                  to production to 10 minutes.
-                                ◉ Implemented  core   service:   authentication
-                                  service, communication service.
-                                ◉ Integrated Camunda.
-                                ◉ Successfully managed team with 5 developers.
-                                         ─────────────────────────────
+=================================== Profile ====================================
+As a Software Engineer with over seven years of experience,  I specialize in the
+design and development of distributed,  scalable systems and have a strong focus
+on microservices architecture utilizing Java/Kotlin.Leveraging DevOps practices,
+I have  a  proven track record  of  constructing reliable  and  high-performance
+infrastructure  to  support  complex,  distributed applications.  This technical
+foundation  is complemented  by  my ability  to adapt  to and integrate emerging
+technologies,  optimizing system performance  and scalability to meet and exceed
+the dynamic needs of modern digital businesses.
+
+============================ Skills & Proficiencies ============================
+Java/Kotlin,  Spring Framework,  PostgreSQL,  Redis,  Mongo DB,  Kafka,  Clouds,
+Kubernetes, Ansible, React, TypeScript, NestJS
+
+================================ Work Experience ===============================
+Senior Software Engineer (Bootcamp)
+May 2023 - August 2023 ⦁ Yandex, the biggest IT company in Russia
+Stack: Java, GRPC, Spring, YDB.
+
+Key Qualifications & Responsibilities:
+* Participated  in  an  intensive bootcamp,  collaborating  with multiple teams
+  on  critical  system enhancements,  including monitoring,  repository,  cloud
+  deployment, and IAM(Identity and Access Management)
+
+Key Achievement:
+* Innovated  a  high-performance monitoring sub-system,  significantly enhancing
+  handling alerts in cloud.
+* Streamlined  Cloud  deployment  processes,  significantly boosting operational
+  efficiency and reducing time-to-market for new features.
+────────────────────────────────────────────────────────────────────────────────
+Senior Software Engineer
+June 2020 - May 2023 ⦁ Alfa-bank, the largest private bank in Russia
+Stack:Java, Kotlin, Spring Framework, Redis, Hazelcast, MongoDB, Ansible, Mesos,
+  Kubernetes, Cloud.
+
+Key Qualifications & Responsibilities:
+* Leading  the  development  and  optimization  of  high-load  APIs  for  mobile
+  applications.
+* System design and development roadmap as Technical Lead.
+* Creating and contributing to the development of tools and framework.
+* Mentoring  interns  and  developers,   enhancing  team  skills  and  promoting
+  knowledge sharing.
+
+Key Achievement:
+* Led  the development  and optimization  of essential  APIs  for mobile banking
+  applications, achieving a performance capacity to handle over 500 requests per
+  second.  Utilized a non-blocking approach to develop API and implemented Redis
+  caching  strategies,  reducing  backend  system  load  by  40%  and  enhancing
+  application responsiveness.
+* As Technical Lead, orchestrated the system design and development roadmap for
+  a new, key banking product.
+* Led the development Zeebe monitoring application,  similar to Camunda Operate,
+  using the React framework.
+* Mentored over four interns and newcomers,  directly contributing to the team's
+  growth and skill enhancement.
+────────────────────────────────────────────────────────────────────────────────
+Senior Software Engineer
+February 2019 - June 2020 ⦁ Lorus SCM, an expert in the field of logistics
+Stack:Java, Kotlin, Spring Framework, PostgreSQL, MongoDB, RabbitMQ, Apache poi,
+  Apache Kafka, Docker swarm, Redis, Elastic search, Camunda BPM.
+
+Key Qualifications & Responsibilities:
+* Design microservice architecture.
+* Leading a team of developers as a team lead.
+* Configuring infrastructure: Docker swarm, Mongo DB, Redis, etc.
+
+Key Achievement:
+* Implemented  the CI/CD system using Gitlab CI  and Docker swarm,  resulting in
+  improved safety and reduced time to production to 10 minutes.
+* Developed  core  services  including authentication service  and communication
+  service.
+* Integrated Camunda into the system.
+* Effectively led a team of 5 developers.
+────────────────────────────────────────────────────────────────────────────────
+Mentor for students in Java Software Engineering
+January 2019 - February 2022 ⦁ Innopolis University,
+The first university to specialize in Computer Science in Russia
+
+Key Qualifications & Responsibilities:
+* Reviewing homework
+* Consulting students, and providing support
+
+Key Achievement:
+* 31 out of 35 students gained a diploma in Java Backend Engineering.
+────────────────────────────────────────────────────────────────────────────────
+Software Engineer
+May 2018 - February 2019 ⦁ Magnit, one of Russia's biggest food retail chains
+Stack: Java,Spring Framework,AMQP,PostgreSQL, MSSQL, RabbitMQ, Apache poi, JDBC.
+
+Key Qualifications & Responsibilities:
+* Refactoring existing systems to use microservice architecture.
+* Supporting legacy system.
+* Mentoring junior java developers.
+* Deployment apps from bare metal, configuring Nginx.
+
+Key Achievement:
+* Optimized legacy code to give output in real time.  This system previously had
+  a lag of 2 hours.
+* Successful implementation of a data bus.
+* Optimized  the  transport  distribution  routes  for  orders,  increasing  the
+  efficiency of deliveries
+────────────────────────────────────────────────────────────────────────────────
+Software Engineer
+January 2017 - May 2018 ⦁ Sberbank, the largest bank in Russia
+Stack: Java, Jave EE, PL/Sql.
+
+Key Qualifications & Responsibilities:
+* Developing adapters between database and data bus.
+* Developing data pipeline (models) in Oracle database.
+* Deploying apps to WebSphere.
+
+Key Achievement:
+* Released the product to production for over 100 millions users:  replenishment
+  of cards and accounts through external participants.
+* Implemented xslt transformation library.
+
+=================================== Education ==================================
+Vyatka State University of Humanities, 2009 - 2014, Kirov
+Bachelor of Applied Mathematics and Computer Science
+
+==================================== Courses ===================================
+Java Software Engineer Course, Innopolis University, 2017
+Gained a diploma in Java Backend Engineering

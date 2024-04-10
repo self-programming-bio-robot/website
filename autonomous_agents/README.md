@@ -3,9 +3,9 @@
 - [x] Cell struct
 - [x] Object struct
 - [x] Loading map from file
-- [ ] Agent struct
-- [ ] World struct
-- [ ] World tick
+- [x] Agent struct
+- [x] World struct
+- [x] World tick
 - [ ] Agent movement
 - [ ] Agent vision
 - [ ] Agent action on object

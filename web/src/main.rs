@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 use futures_util::StreamExt;
 use gloo::net::http::Request;
-use wasm_bindgen::JsCast;
+use wasm_bindgen::{JsCast};
 use wasm_streams::ReadableStream;
 use web_sys::HtmlElement;
 use web_sys::js_sys::Uint8Array;
@@ -12,6 +12,7 @@ use yew_hooks::{use_event_with_window, use_list, use_update};
 use yew_router::prelude::*;
 
 use wire_world::WireWorld;
+use zhdanov_website_core::dto::question::UserQuestion;
 use zhdanov_website_core::page_repository::{PageLocalRepository, PageRepository};
 use zhdanov_website_core::string_utils::{split_line_by_limit};
 
@@ -58,6 +59,7 @@ fn router(route: Route) -> Html {
 
 #[function_component(ArticlePage)]
 fn article_page(props: &ArticleProps) -> Html {
+    let navigator = use_navigator().unwrap();
     let context = use_context::<Rc<Context>>().unwrap();
     let messages = use_list(Vec::<Message>::new());
     let assistant_response = use_mut_ref(String::new);
@@ -144,14 +146,16 @@ fn article_page(props: &ArticleProps) -> Html {
             let is_generating = is_generating.clone();
             let assistant_response = assistant_response.clone();
             let pre_ref = pre_ref.clone();
+            let navigator = navigator.clone();
 
             Callback::from(move |()| {
+                let navigator = navigator.clone();
                 let mut is_generating = is_generating.borrow_mut();
-
+                let assistant_response: &String = &assistant_response.borrow();
                 *is_generating = false;
 
                 messages.push(Message {
-                    content: prepare_string(&assistant_response.borrow()),
+                    content: prepare_string(assistant_response),
                     is_assistant: true,
                 });
 
@@ -184,6 +188,7 @@ fn article_page(props: &ArticleProps) -> Html {
                         is_generating={*is_generating.borrow()}
                     />
                     <ConsoleInput
+                        page={props.name.to_string()}
                         is_generating={*is_generating.borrow()}
                         on_error={insert_text}
                         on_submit={add_user_message}
@@ -205,7 +210,7 @@ fn article_page(props: &ArticleProps) -> Html {
 pub struct ConsoleViewProps {
     #[prop_or(AttrValue::from(""))]
     pub text: AttrValue,
-    pub is_generating: bool
+    pub is_generating: bool,
 }
 
 #[function_component(ConsoleView)]
@@ -219,6 +224,7 @@ fn console_view(props: &ConsoleViewProps) -> Html {
 
 #[derive(Properties, PartialEq, Clone)]
 pub struct ConsoleInputProps {
+    pub page: String,
     pub is_generating: bool,
     pub on_error: Callback<String>,
     pub on_submit: Callback<String>,
@@ -233,6 +239,7 @@ fn console_input(props: &ConsoleInputProps) -> Html {
 
     let handle_submit = {
         let ConsoleInputProps {
+            page,
             is_generating: _,
             on_error: _,
             on_submit,
@@ -252,11 +259,19 @@ fn console_input(props: &ConsoleInputProps) -> Html {
                     let on_start_stream = on_start_stream.clone();
                     let on_complete_stream = on_complete_stream.clone();
                     let on_update_stream = on_update_stream.clone();
+                    let page = page.clone();
 
                     async move {
                         on_start_stream.emit(());
+
+                        let request = UserQuestion {
+                            question: input_text.to_string(),
+                            from_page: page,
+                        };
+                        let request = serde_json::to_string(&request).unwrap();
                         let raw = Request::post("api/answer")
-                            .body(input_text.clone().to_string())
+                            .header("Content-Type", "application/json")
+                            .body(request)
                             .unwrap()
                             .send()
                             .await

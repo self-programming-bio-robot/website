@@ -40,3 +40,13 @@ Tell me about Nikolai's experience.
 Как вы балансируете работу с личной жизнью?
 Вы являетесь членом каких-либо профессиональных организаций или групп?
 Расскажите о опыте Николая.
+Show me Nikolay's resume
+Покажите мне резюме Николая
+Show me his CV
+Покажите мне его резюме
+CV
+резюме
+resume
+где можно посмотреть резюме?
+where can I see the resume?
+where can I see the CV?

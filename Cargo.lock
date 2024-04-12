@@ -5203,6 +5203,7 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "uuid",
+ "zhdanov_website_core",
 ]
 
 [[package]]
@@ -6175,6 +6176,7 @@ version = "0.3.0"
 dependencies = [
  "futures-util",
  "gloo 0.11.0",
+ "serde_json",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "wasm-streams 0.4.0",
@@ -6787,6 +6789,7 @@ name = "zhdanov_website_core"
 version = "0.1.0"
 dependencies = [
  "lazy_static",
+ "serde",
 ]
 
 [[package]]

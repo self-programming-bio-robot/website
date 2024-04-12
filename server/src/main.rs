@@ -7,18 +7,18 @@ use axum::body::Body;
 use axum::extract::State;
 use axum::http::{Request, StatusCode};
 use axum::response::{Html, IntoResponse};
-use axum::Router;
+use axum::{Json, Router};
 use axum::routing::{get, post};
 use axum_streams::StreamBodyAs;
 use tokio::fs;
 use tokio_stream::StreamExt;
-use tower_http::cors::CorsLayer;
 use tower_http::services::ServeDir;
 use tower::{ServiceExt};
 use clap::Parser;
 use tracing::log::info;
 
 use llm::assistant::SimpleAgent;
+use zhdanov_website_core::dto::question::UserQuestion;
 
 pub mod llm;
 
@@ -66,7 +66,6 @@ async fn main() {
                 _ => res.into_response(),
             }
         }))
-        .layer(CorsLayer::permissive())
         .with_state(simple_agent);
 
     let sock_addr = SocketAddr::from((
@@ -78,9 +77,11 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
-async fn answer(State(simple_agent): State<SimpleAgent>, body: String) -> impl axum::response::IntoResponse { //String {//Sse<impl Stream<Item=Result<Event, Infallible>>> {
-    let stream = simple_agent.invoke(body).await.unwrap();
-    let stream = stream.map(|boxed_string| *boxed_string);
+async fn answer(State(simple_agent): State<SimpleAgent>, Json(body): Json<UserQuestion>) -> impl axum::response::IntoResponse { //String {//Sse<impl Stream<Item=Result<Event, Infallible>>> {
+    let answer = simple_agent.invoke(body).await.unwrap();
+    let stream = answer.0.map(|boxed_string| *boxed_string);
 
-    StreamBodyAs::text(stream)
+    let mut response = StreamBodyAs::text(stream).into_response();
+    response.headers_mut().insert("x-topic", answer.1.parse().unwrap());
+    response
 }

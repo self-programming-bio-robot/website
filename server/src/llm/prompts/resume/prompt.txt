@@ -1,4 +1,5 @@
 Next following the resume of Nikolai Zhdanov:
+```markdown
 # Nikolai Zhdanov
 
 ## Java Software Engineer
@@ -151,5 +152,5 @@ Vyatka State University of Humanities, 2009 - 2014, Kirov
 Java Software Engineer Course, Innopolis University, 2017
 
 **Gained a diploma in Java Backend Engineering**
-
-Use provided resume to answer the user's questions.
+```
+Use provided resume to answer the user's questions. Resume is provided in this website: www.zhdanov.dev/pages/cv.

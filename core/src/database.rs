@@ -15,9 +15,9 @@ pub fn pages() -> Vec<Page<'static>> {
             links: vec!["main", "cv"],
         },
         Page {
-            id: "cv",
+            id: "resume",
             title: "Zhdanov's curriculum vitae".to_string(),
-            content: include_str!("../pages/cv.txt").to_string(),
+            content: include_str!("../pages/resume.txt").to_string(),
             links: vec![],
         },
         Page {

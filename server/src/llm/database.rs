@@ -40,7 +40,7 @@ pub async fn create_router(vector_store: Arc<dyn VectorStore>) -> Result<Semanti
         .with_score_threshold(0.5)
         .with_k(10);
 
-    add_topics!(router, "biography", "jobs", "hobby", "projects", "base");
+    add_topics!(router, "biography", "resume", "hobby", "projects", "base");
     
     Ok(router)
 }

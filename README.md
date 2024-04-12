@@ -19,3 +19,4 @@ trunk serve --proxy-backend=http://localhost:3000/ --proxy-rewrite=/api/
 - [ ] Add history to conversation
 - [ ] Add error handling
 - [ ] Add tests
+- [ ] Utilize built-in semantic router of LangChain

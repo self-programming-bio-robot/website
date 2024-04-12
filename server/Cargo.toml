@@ -24,6 +24,9 @@ axum-streams = { version = "0.12", features=["json", "csv", "protobuf", "text"] 
 tower = "0.4.13"
 clap = { version = "4.5.4", features = ["derive"] }
 
+[dependencies.zhdanov_website_core]
+path = "../core"
+
 [dev-dependencies]
 mockall = "0.12.1"
 tokio-test = "0.4.4"

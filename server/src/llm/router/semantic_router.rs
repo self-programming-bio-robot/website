@@ -17,6 +17,7 @@ pub struct SemanticRouter {
     default: Route,
     k: usize,
     score_threshold: f32,
+    total_score_threshold: f64,
 }
 
 impl SemanticRouter {
@@ -25,7 +26,7 @@ impl SemanticRouter {
         default: Route,
     ) -> Self {
         let topics = HashMap::new();
-        Self { vector_store, topics, k: 10, score_threshold: 0.5, default }
+        Self { vector_store, topics, k: 10, score_threshold: 0.5, total_score_threshold: 0.07, default }
     }
 
     pub fn with_k(mut self, k: usize) -> Self {
@@ -77,8 +78,9 @@ impl Router for SemanticRouter {
             })
             .sorted_by(|a, b| b.2.partial_cmp(&a.2).unwrap())
             .next();
-
-        Ok(topic.map(|t| Route { topic: t.0, prompt: t.1 })
+        Ok(topic
+            .filter(|r| r.2 > self.total_score_threshold)
+            .map(|t| Route { topic: t.0, prompt: t.1 })
             .unwrap_or(self.default.clone()))
     }
 }

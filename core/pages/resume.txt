@@ -3,7 +3,7 @@
             Tbilisi, Georgia ⦁ +995 550 059 499 ⦁ nikolai@zhdanov.dev
               www.linkedin.com/in/nikolai-zhdanov ⦁ www.zhdanov.dev
 
-=================================== Profile ====================================
+═══════════════════════════════════ Profile ════════════════════════════════════
 As a Software Engineer with over seven years of experience,  I specialize in the
 design and development of distributed,  scalable systems and have a strong focus
 on microservices architecture utilizing Java/Kotlin.Leveraging DevOps practices,
@@ -13,11 +13,11 @@ foundation  is complemented  by  my ability  to adapt  to and integrate emerging
 technologies,  optimizing system performance  and scalability to meet and exceed
 the dynamic needs of modern digital businesses.
 
-============================ Skills & Proficiencies ============================
+════════════════════════════ Skills & Proficiencies ════════════════════════════
 Java/Kotlin,  Spring Framework,  PostgreSQL,  Redis,  Mongo DB,  Kafka,  Clouds,
 Kubernetes, Ansible, React, TypeScript, NestJS
 
-================================ Work Experience ===============================
+════════════════════════════════ Work Experience ═══════════════════════════════
 Senior Software Engineer (Bootcamp)
 May 2023 - August 2023 ⦁ Yandex, the biggest IT company in Russia
 Stack: Java, GRPC, Spring, YDB.
@@ -119,10 +119,10 @@ Key Achievement:
   of cards and accounts through external participants.
 * Implemented xslt transformation library.
 
-=================================== Education ==================================
+═══════════════════════════════════ Education ══════════════════════════════════
 Vyatka State University of Humanities, 2009 - 2014, Kirov
 Bachelor of Applied Mathematics and Computer Science
 
-==================================== Courses ===================================
+════════════════════════════════════ Courses ═══════════════════════════════════
 Java Software Engineer Course, Innopolis University, 2017
 Gained a diploma in Java Backend Engineering

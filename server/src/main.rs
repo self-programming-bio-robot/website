@@ -19,6 +19,7 @@ use tracing::log::info;
 
 use llm::assistant::SimpleAgent;
 use zhdanov_website_core::dto::question::UserQuestion;
+use crate::llm::assistant::ResponseData;
 
 pub mod llm;
 
@@ -79,9 +80,14 @@ async fn main() {
 
 async fn answer(State(simple_agent): State<SimpleAgent>, Json(body): Json<UserQuestion>) -> impl axum::response::IntoResponse { //String {//Sse<impl Stream<Item=Result<Event, Infallible>>> {
     let answer = simple_agent.invoke(body).await.unwrap();
-    let stream = answer.0.map(|boxed_string| *boxed_string);
+    let mut response = match answer.data {
+        ResponseData::Stream(stream) => { 
+            let stream = stream.map(|boxed_string| *boxed_string);
+            StreamBodyAs::text(stream).into_response()
+        },
+    };
 
-    let mut response = StreamBodyAs::text(stream).into_response();
-    response.headers_mut().insert("x-topic", answer.1.parse().unwrap());
+    response.headers_mut().insert("x-topic", answer.topic.parse().unwrap());
+    response.headers_mut().insert("x-is-question", answer.is_question.to_string().parse().unwrap());
     response
 }

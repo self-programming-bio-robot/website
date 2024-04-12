@@ -1,0 +1,8 @@
+ACTIONS
+----------------------------
+name: Redirect
+description: Redirects the user to a new URL
+arguments:
+    - path: The path to redirect to, possible values are:
+       - "pages/resume": This page represents the resume of the Nikolai Zhdanov
+----------------------------

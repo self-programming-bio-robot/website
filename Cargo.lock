@@ -5192,6 +5192,7 @@ dependencies = [
  "http-body-util",
  "itertools 0.12.1",
  "langchain-rust",
+ "log",
  "mockall",
  "serde",
  "serde_json",

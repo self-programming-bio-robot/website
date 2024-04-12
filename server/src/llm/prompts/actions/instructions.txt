@@ -1,0 +1,32 @@
+RESPONSE FORMAT INSTRUCTIONS
+----------------------------
+
+When responding to me, please output a response in the following format:
+
+{
+    "actions_name": { \\ action_name is the name of the action that was performed, must be one of {{action_names}}
+        "arg1": string, \\ the arguments that were passed to the action
+        ...
+    }
+}
+
+Examples:
+Redirect action with path "pages/resume":
+{
+    "Redirect": {
+        "path": "pages/resume"
+    }
+}
+Redirect action with path "pages/about-me":
+{
+    "Redirect": {
+        "path": "pages/resume"
+    }
+}
+Send email action with subject "Hello" and body "World":
+{
+    "SendEmail": {
+        "subject": "Hello",
+        "body": "World"
+    }
+}

@@ -12,6 +12,7 @@ use yew_hooks::{use_event_with_window, use_list, use_update};
 use yew_router::prelude::*;
 
 use wire_world::WireWorld;
+use zhdanov_website_core::dto::message::Message;
 use zhdanov_website_core::dto::question::UserQuestion;
 use zhdanov_website_core::page_repository::{PageLocalRepository, PageRepository};
 use zhdanov_website_core::string_utils::{split_line_by_limit};
@@ -91,6 +92,9 @@ fn article_page(props: &ArticleProps) -> Html {
                 messages.push(Message {
                     content: x,
                     is_assistant: true,
+                    is_response: false,
+                    is_question: false,
+                    topic: None,
                 });
             })
         };
@@ -101,6 +105,9 @@ fn article_page(props: &ArticleProps) -> Html {
                 messages.push(Message {
                     content: prepare_string(&format!("{}: {}", USER_NAME, message)),
                     is_assistant: false,
+                    is_response: false,
+                    is_question: true,
+                    topic: None,
                 });
             })
         };
@@ -148,7 +155,7 @@ fn article_page(props: &ArticleProps) -> Html {
             let pre_ref = pre_ref.clone();
             let navigator = navigator.clone();
 
-            Callback::from(move |()| {
+            Callback::from(move |(topic, is_question)| {
                 let navigator = navigator.clone();
                 let mut is_generating = is_generating.borrow_mut();
                 let assistant_response: &String = &assistant_response.borrow();
@@ -157,6 +164,9 @@ fn article_page(props: &ArticleProps) -> Html {
                 messages.push(Message {
                     content: prepare_string(assistant_response),
                     is_assistant: true,
+                    is_response: true,
+                    is_question,
+                    topic: Some(topic),
                 });
 
                 scroll_bottom(pre_ref.clone());
@@ -190,6 +200,7 @@ fn article_page(props: &ArticleProps) -> Html {
                     <ConsoleInput
                         page={props.name.to_string()}
                         is_generating={*is_generating.borrow()}
+                        messages={messages.current().clone()}
                         on_error={insert_text}
                         on_submit={add_user_message}
                         on_start_stream={start_ai_stream}
@@ -226,11 +237,12 @@ fn console_view(props: &ConsoleViewProps) -> Html {
 pub struct ConsoleInputProps {
     pub page: String,
     pub is_generating: bool,
+    pub messages: Vec<Message>,
     pub on_error: Callback<String>,
     pub on_submit: Callback<String>,
     pub on_start_stream: Callback<()>,
     pub on_update_stream: Callback<String>,
-    pub on_complete_stream: Callback<()>,
+    pub on_complete_stream: Callback<(String, bool)>,
 }
 
 #[function_component(ConsoleInput)]
@@ -241,6 +253,7 @@ fn console_input(props: &ConsoleInputProps) -> Html {
         let ConsoleInputProps {
             page,
             is_generating: _,
+            messages,
             on_error: _,
             on_submit,
             on_start_stream,
@@ -250,7 +263,7 @@ fn console_input(props: &ConsoleInputProps) -> Html {
 
         Callback::from({
             let input_text = input_text.clone();
-
+            
             move |()| {
                 on_submit.emit(input_text.clone().to_string());
 
@@ -260,6 +273,7 @@ fn console_input(props: &ConsoleInputProps) -> Html {
                     let on_complete_stream = on_complete_stream.clone();
                     let on_update_stream = on_update_stream.clone();
                     let page = page.clone();
+                    let messages = messages.clone();
 
                     async move {
                         on_start_stream.emit(());
@@ -267,15 +281,19 @@ fn console_input(props: &ConsoleInputProps) -> Html {
                         let request = UserQuestion {
                             question: input_text.to_string(),
                             from_page: page,
+                            messages
                         };
                         let request = serde_json::to_string(&request).unwrap();
-                        let raw = Request::post("api/answer")
+                        let response = Request::post("api/answer")
                             .header("Content-Type", "application/json")
                             .body(request)
                             .unwrap()
                             .send()
                             .await
-                            .unwrap()
+                            .unwrap();
+                        let is_question = response.headers().get("x-is-question").unwrap().as_str() == "true";
+                        let topic = response.headers().get("x-topic").unwrap();
+                        let raw = response
                             .body()
                             .unwrap();
                         let body = ReadableStream::from_raw(raw);
@@ -289,7 +307,7 @@ fn console_input(props: &ConsoleInputProps) -> Html {
                                 on_update_stream.emit(chunk);
                             }
                         }
-                        on_complete_stream.emit(());
+                        on_complete_stream.emit((topic, is_question));
                     }
                 });
 
@@ -338,12 +356,6 @@ fn console_input(props: &ConsoleInputProps) -> Html {
             {input_text.to_string()}
         </span>
     }
-}
-
-#[derive(Clone, PartialEq)]
-pub struct Message {
-    pub content: String,
-    pub is_assistant: bool,
 }
 
 #[derive(Clone)]

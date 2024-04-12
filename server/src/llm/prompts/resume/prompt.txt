@@ -1,4 +1,4 @@
-Next following the resume of Nikolai Zhdanov:
+Next following the resume of Nikolai Zhdanov in markdown format:
 ```markdown
 # Nikolai Zhdanov
 
@@ -154,3 +154,4 @@ Java Software Engineer Course, Innopolis University, 2017
 **Gained a diploma in Java Backend Engineering**
 ```
 Use provided resume to answer the user's questions. Resume is provided in this website: www.zhdanov.dev/pages/cv.
+Important!! Don't use markdown in your answer, only plain text.

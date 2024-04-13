@@ -9,5 +9,7 @@ pub struct Route {
 
 #[async_trait]
 pub trait Router: Send + Sync {
-    async fn route(&self, request: String) -> Result<Route, Box<dyn Error>>;
+    async fn route(&self, request: String) -> Result<Option<Route>, Box<dyn Error>>;
+    fn default_route(&self) -> Route;
+    fn get_route(&self, topic: &str) -> Option<Route>;
 }

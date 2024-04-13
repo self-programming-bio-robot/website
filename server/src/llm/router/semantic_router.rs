@@ -55,7 +55,7 @@ impl SemanticRouter {
 
 #[async_trait]
 impl Router for SemanticRouter {
-    async fn route(&self, request: String) -> Result<Route, Box<dyn Error>> {
+    async fn route(&self, request: String) -> Result<Option<Route>, Box<dyn Error>> {
         let options = VecStoreOptions::default();
         let options = options.with_score_threshold(self.score_threshold);
 
@@ -81,6 +81,13 @@ impl Router for SemanticRouter {
         Ok(topic
             .filter(|r| r.2 > self.total_score_threshold)
             .map(|t| Route { topic: t.0, prompt: t.1 })
-            .unwrap_or(self.default.clone()))
+        )
+    }
+    fn default_route(&self) -> Route {
+        self.default.clone()
+    }
+
+    fn get_route(&self, topic: &str) -> Option<Route> {
+        self.topics.get(topic).map(|(prompt, _)| Route { topic: topic.to_string(), prompt: prompt.clone() })
     }
 }

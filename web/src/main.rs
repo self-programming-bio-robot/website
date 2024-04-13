@@ -12,6 +12,7 @@ use yew_hooks::{use_event_with_window, use_list, use_update};
 use yew_router::prelude::*;
 
 use wire_world::WireWorld;
+use zhdanov_website_core::dto::action::Action;
 use zhdanov_website_core::dto::message::Message;
 use zhdanov_website_core::dto::question::UserQuestion;
 use zhdanov_website_core::page_repository::{PageLocalRepository, PageRepository};
@@ -56,6 +57,21 @@ fn router(route: Route) -> Html {
             <WireWorld />
         },
     }
+}
+
+fn prepare_messages(messages: &Vec<Message>) -> Vec<Message> {
+    messages.iter()
+        .map(|message| {
+            let mut copy = message.clone();
+            let prefix = if copy.is_assistant {
+                ASSISTANT_NAME.to_string() + ": "
+            } else {
+                USER_NAME.to_string() + ": "
+            };
+            copy.content = copy.content.strip_prefix(&prefix).unwrap_or(&copy.content).to_string();
+            copy
+        })
+        .collect()
 }
 
 #[function_component(ArticlePage)]
@@ -156,7 +172,6 @@ fn article_page(props: &ArticleProps) -> Html {
             let navigator = navigator.clone();
 
             Callback::from(move |(topic, is_question)| {
-                let navigator = navigator.clone();
                 let mut is_generating = is_generating.borrow_mut();
                 let assistant_response: &String = &assistant_response.borrow();
                 *is_generating = false;
@@ -170,6 +185,25 @@ fn article_page(props: &ArticleProps) -> Html {
                 });
 
                 scroll_bottom(pre_ref.clone());
+            })
+        };
+
+        let do_action = {
+            let navigator = navigator.clone();
+            let assistant_response = assistant_response.clone();
+
+            Callback::from(move |action: Action| {
+                let mut assistant_response: RefMut<String> = assistant_response.borrow_mut();
+                match action {
+                    Action::Redirect(action) => {
+                        if action.path.contains("pages") {
+                            assistant_response.push_str("Redirect to: ");
+                            assistant_response.push_str(action.path.as_str());
+                            let page_name = action.path.split("/").last().unwrap();
+                            navigator.push(&Route::Page { name: page_name.to_string() });
+                        }
+                    }
+                }
             })
         };
 
@@ -206,6 +240,7 @@ fn article_page(props: &ArticleProps) -> Html {
                         on_start_stream={start_ai_stream}
                         on_update_stream={update_ai_stream}
                         on_complete_stream={complete_ai_stream}
+                        on_action={do_action}
                     />
                 </div>
             </div>
@@ -243,6 +278,7 @@ pub struct ConsoleInputProps {
     pub on_start_stream: Callback<()>,
     pub on_update_stream: Callback<String>,
     pub on_complete_stream: Callback<(String, bool)>,
+    pub on_action: Callback<Action>,
 }
 
 #[function_component(ConsoleInput)]
@@ -259,11 +295,12 @@ fn console_input(props: &ConsoleInputProps) -> Html {
             on_start_stream,
             on_update_stream,
             on_complete_stream,
+            on_action,
         } = props.clone();
 
         Callback::from({
             let input_text = input_text.clone();
-            
+
             move |()| {
                 on_submit.emit(input_text.clone().to_string());
 
@@ -272,6 +309,7 @@ fn console_input(props: &ConsoleInputProps) -> Html {
                     let on_start_stream = on_start_stream.clone();
                     let on_complete_stream = on_complete_stream.clone();
                     let on_update_stream = on_update_stream.clone();
+                    let on_action = on_action.clone();
                     let page = page.clone();
                     let messages = messages.clone();
 
@@ -281,7 +319,7 @@ fn console_input(props: &ConsoleInputProps) -> Html {
                         let request = UserQuestion {
                             question: input_text.to_string(),
                             from_page: page,
-                            messages
+                            messages: prepare_messages(&messages),
                         };
                         let request = serde_json::to_string(&request).unwrap();
                         let response = Request::post("api/answer")
@@ -293,6 +331,17 @@ fn console_input(props: &ConsoleInputProps) -> Html {
                             .unwrap();
                         let is_question = response.headers().get("x-is-question").unwrap().as_str() == "true";
                         let topic = response.headers().get("x-topic").unwrap();
+                        if let Some(content_type) = response.headers().get("content-type") {
+                            if content_type.as_str().starts_with("application/json") {
+                                let body = response
+                                    .json::<Action>()
+                                    .await
+                                    .unwrap();
+                                on_action.emit(body);
+                                on_complete_stream.emit((topic, is_question));
+                                return;
+                            }
+                        }
                         let raw = response
                             .body()
                             .unwrap();

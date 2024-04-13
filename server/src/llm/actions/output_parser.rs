@@ -1,8 +1,8 @@
 use std::collections::VecDeque;
 use std::error::Error;
 use serde_json::Value;
-use crate::llm::actions::action::Action;
-
+use zhdanov_website_core::dto::action::Action;
+#[derive(Clone)]
 pub struct ActionOutputParser {}
 impl ActionOutputParser {
     pub fn new() -> Self {

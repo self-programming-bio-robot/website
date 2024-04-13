@@ -38,3 +38,11 @@ Is there an interactive way to explore your life story, like a map or timeline?
 Включаете ли вы какие-либо свои цитаты или интервью?
 Как ваша ранняя жизнь повлияла на ваши последующие достижения?
 Есть ли интерактивный способ исследовать вашу жизненную историю, например, карта или временная шкала?
+Why is he programmer?
+Почему он программист?
+Почему он стал программистом?
+Почему он выбрал программирование?
+Почему он решил стать программистом?
+Why did he become a programmer?
+Why did he choose programming?
+What inspired him to become a programmer?

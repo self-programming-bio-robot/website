@@ -15,7 +15,7 @@ use tokio_stream::StreamExt;
 use tower_http::services::ServeDir;
 use tower::{ServiceExt};
 use clap::Parser;
-use tracing::log::info;
+use log::info;
 
 use llm::assistant::SimpleAgent;
 use zhdanov_website_core::dto::question::UserQuestion;
@@ -43,7 +43,10 @@ struct Opt {
 async fn main() {
     let opt = Opt::parse();
     
-    tracing_subscriber::fmt::init();
+    tracing_subscriber::fmt()
+        .without_time()
+        .with_max_level(tracing::Level::INFO)
+        .init();
 
     let simple_agent = SimpleAgent::new(env::var("OPENAI_KEY").expect("OPENAI_KEY must be set"))
         .await;
@@ -85,6 +88,9 @@ async fn answer(State(simple_agent): State<SimpleAgent>, Json(body): Json<UserQu
             let stream = stream.map(|boxed_string| *boxed_string);
             StreamBodyAs::text(stream).into_response()
         },
+        ResponseData::Action(action) => {
+            Json(action).into_response()
+        }
     };
 
     response.headers_mut().insert("x-topic", answer.topic.parse().unwrap());

@@ -11,11 +11,13 @@ use langchain_rust::llm::openai::{OpenAI, OpenAIConfig};
 use langchain_rust::llm::openai::OpenAIModel::Gpt35;
 use langchain_rust::prompt::{HumanMessagePromptTemplate, MessageOrTemplate};
 use langchain_rust::schemas::{Message};
+use log::debug;
 use tracing::log::{info};
+use zhdanov_website_core::dto::action::Action;
 use zhdanov_website_core::dto::question::UserQuestion;
-
 use crate::llm::database::create_router;
 use crate::llm::in_memory_vector_store::builder::StoreBuilder;
+use crate::llm::question_assistant::QuestionAssistant;
 use crate::llm::router::router::Router;
 use crate::llm::utils::message::make_history;
 
@@ -23,10 +25,12 @@ use crate::llm::utils::message::make_history;
 pub struct SimpleAgent {
     open_ai: OpenAI<OpenAIConfig>,
     router: Arc<dyn Router>,
+    question_assistant: QuestionAssistant,
 }
 
 pub enum ResponseData {
     Stream(Pin<Box<dyn Stream<Item=Box<String>> + Send>>),
+    Action(Action),
 }
 
 pub struct AgentResponse {
@@ -51,14 +55,52 @@ impl SimpleAgent {
                 .unwrap()
         );
         let router = create_router(vector_store.clone()).await.unwrap();
+        let question_assistant = QuestionAssistant::new_with_open_ai(open_ai.clone());
         
-        Self { open_ai, router: Arc::new(router) }
+        Self { open_ai, router: Arc::new(router), question_assistant }
     }
 
     pub async fn invoke(&self, query: UserQuestion) -> Result<AgentResponse, Box<dyn Error>> {
         let base_prompt = include_str!("prompts/system.txt");
         let route = self.router.route(query.question.clone()).await?;
-        info!("Query: '{:?}' => Route: '{}'", &query, route.topic);
+        let route = if route.is_none() {
+            self.router.route(query.question.clone()+"?").await?
+        } else {
+            route
+        };
+        
+        debug!("Query: {:?}", query);
+        
+        let route = if let Some(message) = query.messages.last() {
+            let route = if let Some(route) = route {
+                route
+            } else {
+                if let Some(last_topic) = &message.topic {
+                    if let Some(last_route) = self.router.get_route(last_topic.as_str()) {
+                        last_route
+                    } else {
+                        self.router.default_route()
+                    }
+                } else {
+                    self.router.default_route()
+                }
+            };
+            
+            if message.is_question {
+                let action = self.question_assistant.invoke(&query.question, &query.messages).await?;
+                if let Some(action) = action {
+                    return Ok(AgentResponse {
+                        topic: route.topic,
+                        data: ResponseData::Action(action),
+                        is_question: false
+                    });
+                }
+            }
+            route
+        } else {
+            route.unwrap_or(self.router.default_route())
+        };
+        info!("User question: '{:?}' => Route: '{}'", &query.question, route.topic);
         
         let mut system_prompt = base_prompt.to_owned() + route.prompt.as_str();
         

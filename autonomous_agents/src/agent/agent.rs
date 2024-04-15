@@ -15,4 +15,34 @@ pub struct SimpleAgent {
 pub trait Agent {
     fn update(&self, map: &mut Map, tick: usize, agents: RefMut<&HashMap<String, Box<dyn Agent>>>);
     fn name(&self) -> String;
+    
+    fn move_to(&mut self, x: usize, y: usize, map: &Map) -> bool {
+        if let Some(cell) = map.get_cell(x, y) {
+            if !cell.passable {
+                return false;
+            }
+            self.translate(x, y);
+            
+            true
+        } else {
+            false
+        }
+    }
+    
+    fn translate(&mut self, x: usize, y: usize);
+}
+
+impl Agent for SimpleAgent {
+    fn update(&self, map: &mut Map, tick: usize, agents: RefMut<&HashMap<String, Box<dyn Agent>>>) {
+        println!("Agent {} is updating", self.name);
+    }
+    
+    fn name(&self) -> String {
+        self.name.clone()
+    }
+    
+    fn translate(&mut self, x: usize, y: usize) {
+        self.x = x;
+        self.y = y;
+    }
 }

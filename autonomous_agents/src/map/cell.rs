@@ -4,10 +4,12 @@ pub struct Cell {
     pub x: usize,
     pub y: usize,
     pub description: String,
+    pub passable: bool,
 }
 
 #[derive(Deserialize)]
 pub struct CellDefinition {
     pub id: usize,
     pub description: String,
+    pub passable: bool,
 }

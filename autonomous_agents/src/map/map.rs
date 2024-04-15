@@ -37,6 +37,7 @@ impl Map {
                     x,
                     y,
                     description: cell_definition.description.clone(),
+                    passable: cell_definition.passable,
                 }
             })
         }).collect();
@@ -56,6 +57,11 @@ impl Map {
             objects,
             object_definitions,
         })
+    }
+    
+    pub fn get_cell(&self, x: usize, y: usize) -> Option<&Cell> {
+        let index = y * self.width + x;
+        self.cells.get(index)
     }
 }
 
@@ -81,7 +87,7 @@ mod tests {
         {
             "width": 2,
             "height": 2,
-            "cells": [{"id": 0, "description": "grass"}, {"id": 2, "description": "water"}],
+            "cells": [{"id": 0, "description": "grass", "passable": true}, {"id": 2, "description": "water", "passable": false}],
             "objects": [{"name": "tree", "description": "oak tree", "actions": [
                 {"name": "chop", "description": "cut down the tree", "requirements": ["axe"]}
             ]}],

@@ -2,21 +2,22 @@
   font-family: 'Clacon2';
   font-style: normal;
   font-weight: 400;
-  font-display: swap;
-  src: url(https://webdraft.hu/fonts/classic-console/fonts/clacon2.woff2) format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  font-display: block;
+  src: url("font.otf");
+  src: url("font.woff2");
 }
 
 :root {
   --color: #5bf870;
   --bg: #05321e;
   --off: #050505;
-  --font-size-full: 163%;
-  --font-size-adapt: 2.07vw;
+  --font-size-full: 160%;
+  --font-size-adapt: 2.5vw;
   --text-opacity: 0.6;
 }
 
 body {
+  font-family: "Clacon2", monospace;
   background-image: radial-gradient(ellipse, var(--bg) 0%, var(--off) 90%);
   padding: 0;
   margin: 0;
@@ -58,8 +59,7 @@ body {
 }
 
 .screen .view pre {
-  font-family: "Clacon2";
-  font-family: monospace;
+  font-family: "Clacon2", monospace;
   font-size: var(--font-size-full);
   opacity: var(--text-opacity);
   padding-top: 0;
@@ -78,8 +78,6 @@ body {
 }
 
 .input {
-  font-family: "Clacon2";
-  font-family: monospace;
   opacity: var(--text-opacity);
   font-size: var(--font-size-full);
   position: relative;

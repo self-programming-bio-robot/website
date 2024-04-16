@@ -1,5 +1,7 @@
+use std::cell::{OnceCell, RefCell};
 use std::collections::HashMap;
 use std::error::Error;
+use std::rc::Rc;
 use serde::Deserialize;
 use crate::map::cell::{Cell, CellDefinition};
 use crate::map::object::{Object, ObjectDefinition};
@@ -7,8 +9,8 @@ use crate::map::object::{Object, ObjectDefinition};
 pub struct Map {
     pub width: usize,
     pub height: usize,
-    pub cells: Vec<Cell>,
-    pub objects: Vec<Object>,
+    pub cells: Vec<Rc<OnceCell<Cell>>>,
+    pub objects: Vec<Rc<RefCell<Object>>>,
     pub object_definitions: HashMap<String, ObjectDefinition>,
 }
 
@@ -30,25 +32,28 @@ impl Map {
             .into_iter().map(|it| (it.id, it)).collect();
         let cell_definitions = &cell_definitions; 
         
-        let cells: Vec<Cell> = map_file.map.iter().enumerate().flat_map(|(y, row)| {
+        let cells: Vec<Rc<OnceCell<Cell>>> = map_file.map.iter().enumerate().flat_map(|(y, row)| {
             row.iter().enumerate().map(move |(x, cell_id)| {
                 let cell_definition = cell_definitions.get(cell_id).unwrap();
-                Cell {
+                let cell = Cell {
+                    id: *cell_id,
                     x,
                     y,
                     description: cell_definition.description.clone(),
                     passable: cell_definition.passable,
-                }
+                };
+                Rc::new(OnceCell::from(cell))
             })
         }).collect();
         let object_definitions: HashMap<String, ObjectDefinition> = map_file.objects
             .into_iter().map(|x| (x.name.clone(), x)).collect();
-        let objects: Vec<Object> = map_file.located_objects.iter().map(|(x, y, name)| {
-            Object {
+        let objects: Vec<Rc<RefCell<Object>>> = map_file.located_objects.iter().map(|(x, y, name)| {
+            let obj = Object {
                 x: *x,
                 y: *y,
                 data: object_definitions.get(name).unwrap().clone(),
-            }
+            };
+            Rc::new(RefCell::new(obj))
         }).collect();
         Ok(Map {
             width: map_file.width,
@@ -59,27 +64,16 @@ impl Map {
         })
     }
     
-    pub fn get_cell(&self, x: usize, y: usize) -> Option<&Cell> {
+    pub fn get_cell(&self, x: usize, y: usize) -> Option<Rc<OnceCell<Cell>>> {
         let index = y * self.width + x;
-        self.cells.get(index)
+        self.cells.get(index).map(|cell| Rc::clone(cell))
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs::File;
-    use std::io::Write;
-    use std::env;
-    use std::path::PathBuf;
-
-    fn create_temp_file(file_name: &str, content: &str) -> PathBuf {
-        let mut file_path = env::temp_dir();
-        file_path.push(file_name);
-        let mut file = File::create(&file_path).unwrap();
-        file.write_all(content.as_bytes()).unwrap();
-        file_path
-    }
+    use crate::utility::test::create_temp_file;
     
     #[test]
     fn load_from_file_loads_valid_map() {

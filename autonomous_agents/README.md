@@ -7,7 +7,7 @@
 - [x] World struct
 - [x] World tick
 - [x] Agent movement
-- [ ] Agent vision
+- [x] Agent vision
 - [ ] Agent brain, integrate llm
 - [ ] Agent action on object
 - [ ] Agent memory

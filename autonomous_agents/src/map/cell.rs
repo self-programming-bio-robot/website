@@ -1,6 +1,7 @@
 use serde::Deserialize;
 
 pub struct Cell {
+    pub id: usize,
     pub x: usize,
     pub y: usize,
     pub description: String,

@@ -1,6 +1,12 @@
 use std::cell::{OnceCell, RefCell, RefMut};
 use std::collections::HashMap;
 use std::rc::Rc;
+use std::sync::{Arc, Mutex};
+use langchain_rust::agent::{ConversationalAgentBuilder, OpenAiToolAgentBuilder};
+use langchain_rust::language_models::llm::LLM;
+use langchain_rust::llm::openai::{OpenAI, OpenAIModel};
+use langchain_rust::tools::CommandExecutor;
+use crate::agent::tools::move_action::Move;
 use crate::map::cell::Cell;
 use crate::map::map::Map;
 use crate::map::object::Object;
@@ -13,15 +19,16 @@ pub struct SimpleAgent {
     pub vision_range: usize,
     pub knowledge: String,
     pub memory: String,
+    pub self_agent: Arc<Mutex<Option<SimpleAgent>>>,
 }
 
-pub trait Agent {
-    fn update(&self, map: &mut Map, tick: usize, agents: RefMut<&HashMap<String, Box<dyn Agent>>>);
+pub trait Agent: Send + Sync {
+    fn update(&self, map: Arc<Mutex<Map>>, tick: usize, agents: RefMut<&HashMap<String, Box<dyn Agent>>>);
     fn name(&self) -> String;
 
     fn move_to(&mut self, x: usize, y: usize, map: &Map) -> bool {
         if let Some(cell) = map.get_cell(x, y) {
-            if let Some(cell) = cell.get() {
+            if let Ok(cell) = cell.lock() {
                 if !cell.passable {
                     return false;
                 }
@@ -35,17 +42,50 @@ pub trait Agent {
             false
         }
     }
-
+    
+    fn move_up(&mut self, map: &Map) -> bool;
+    
+    fn move_down(&mut self, map: &Map) -> bool;
+    
+    fn move_left(&mut self, map: &Map) -> bool;
+    
+    fn move_right(&mut self, map: &Map) -> bool;
+    
     fn translate(&mut self, x: usize, y: usize);
 }
 
 impl Agent for SimpleAgent {
-    fn update(&self, map: &mut Map, tick: usize, agents: RefMut<&HashMap<String, Box<dyn Agent>>>) {
-        println!("Agent {} is updating", self.name);
+    fn update(&self, map: Arc<Mutex<Map>>, tick: usize, agents: RefMut<&HashMap<String, Box<dyn Agent>>>) {
+        let llm = OpenAI::default().with_model(OpenAIModel::Gpt35);
+        let move_action = Arc::new(
+            Move::new(self.self_agent.clone(), map.clone())
+        );
+        
+        let agent = ConversationalAgentBuilder::new()
+            .tools(&[move_action])
+            .build(llm)
+            .unwrap();
+
     }
 
     fn name(&self) -> String {
         self.name.clone()
+    }
+
+    fn move_up(&mut self, map: &Map) -> bool {
+        self.move_to(self.x, self.y - 1, map)
+    }
+
+    fn move_down(&mut self, map: &Map) -> bool {
+        self.move_to(self.x, self.y + 1, map)
+    }
+
+    fn move_left(&mut self, map: &Map) -> bool {
+        self.move_to(self.x - 1, self.y, map)
+    }
+
+    fn move_right(&mut self, map: &Map) -> bool {
+        self.move_to(self.x + 1, self.y, map)
     }
 
     fn translate(&mut self, x: usize, y: usize) {
@@ -55,39 +95,39 @@ impl Agent for SimpleAgent {
 }
 
 impl SimpleAgent {
-    fn look_for_objects_around(&self, map: &mut Map) -> Vec<Rc<RefCell<Object>>> {
+    fn look_for_objects_around(&self, map: &mut Map) -> Vec<Arc<Mutex<Object>>> {
         let x = self.x;
         let y = self.y;
         let vision_range = self.vision_range;
         let range_x = x as isize - vision_range as isize..=x as isize + vision_range as isize;
         let range_y = y as isize - vision_range as isize..=y as isize + vision_range as isize;
 
-        let objects: Vec<Rc<RefCell<Object>>> = map.objects.iter()
+        let objects: Vec<Arc<Mutex<Object>>> = map.objects.iter()
             .filter(|object| {
-                let object = object.borrow();
+                let object = object.lock().unwrap();
                 range_x.contains(&(object.x as isize)) && range_y.contains(&(object.y as isize))
             })
-            .map(|object| Rc::clone(object))
+            .map(|object| Arc::clone(object))
             .collect();
         objects
     }
     
-    fn look_around(&self, map: &Map) -> Vec<Rc<OnceCell<Cell>>> {
+    fn look_around(&self, map: &Map) -> Vec<Arc<Mutex<Cell>>> {
         let x = self.x;
         let y = self.y;
         let vision_range = self.vision_range;
         let range_x = x as isize - vision_range as isize..=x as isize + vision_range as isize;
         let range_y = y as isize - vision_range as isize..=y as isize + vision_range as isize;
 
-        let cells: Vec<Rc<OnceCell<Cell>>> = map.cells.iter()
+        let cells: Vec<Arc<Mutex<Cell>>> = map.cells.iter()
             .filter(|object| {
-                if let Some(object) = object.get() {
+                if let Ok(object) = object.lock() {
                     range_x.contains(&(object.x as isize)) && range_y.contains(&(object.y as isize))
                 } else {
                     false
                 }
             })
-            .map(|object| Rc::clone(object))
+            .map(|object| Arc::clone(object))
             .collect();
         cells
     }
@@ -142,6 +182,7 @@ mod tests {
             vision_range: 2,
             knowledge: "".to_string(),
             memory: "".to_string(),
+            self_agent: Arc::new(Mutex::new(None))
         };
         let map = create_test_map();
         assert!(agent.move_to(5, 3, &map));

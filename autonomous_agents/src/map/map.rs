@@ -2,6 +2,7 @@ use std::cell::{OnceCell, RefCell};
 use std::collections::HashMap;
 use std::error::Error;
 use std::rc::Rc;
+use std::sync::{Arc, Mutex};
 use serde::Deserialize;
 use crate::map::cell::{Cell, CellDefinition};
 use crate::map::object::{Object, ObjectDefinition};
@@ -9,8 +10,8 @@ use crate::map::object::{Object, ObjectDefinition};
 pub struct Map {
     pub width: usize,
     pub height: usize,
-    pub cells: Vec<Rc<OnceCell<Cell>>>,
-    pub objects: Vec<Rc<RefCell<Object>>>,
+    pub cells: Vec<Arc<Mutex<Cell>>>,
+    pub objects: Vec<Arc<Mutex<Object>>>,
     pub object_definitions: HashMap<String, ObjectDefinition>,
 }
 
@@ -32,7 +33,7 @@ impl Map {
             .into_iter().map(|it| (it.id, it)).collect();
         let cell_definitions = &cell_definitions; 
         
-        let cells: Vec<Rc<OnceCell<Cell>>> = map_file.map.iter().enumerate().flat_map(|(y, row)| {
+        let cells: Vec<Arc<Mutex<Cell>>> = map_file.map.iter().enumerate().flat_map(|(y, row)| {
             row.iter().enumerate().map(move |(x, cell_id)| {
                 let cell_definition = cell_definitions.get(cell_id).unwrap();
                 let cell = Cell {
@@ -42,18 +43,18 @@ impl Map {
                     description: cell_definition.description.clone(),
                     passable: cell_definition.passable,
                 };
-                Rc::new(OnceCell::from(cell))
+                Arc::new(Mutex::from(cell))
             })
         }).collect();
         let object_definitions: HashMap<String, ObjectDefinition> = map_file.objects
             .into_iter().map(|x| (x.name.clone(), x)).collect();
-        let objects: Vec<Rc<RefCell<Object>>> = map_file.located_objects.iter().map(|(x, y, name)| {
+        let objects: Vec<Arc<Mutex<Object>>> = map_file.located_objects.iter().map(|(x, y, name)| {
             let obj = Object {
                 x: *x,
                 y: *y,
                 data: object_definitions.get(name).unwrap().clone(),
             };
-            Rc::new(RefCell::new(obj))
+            Arc::new(Mutex::new(obj))
         }).collect();
         Ok(Map {
             width: map_file.width,
@@ -64,9 +65,9 @@ impl Map {
         })
     }
     
-    pub fn get_cell(&self, x: usize, y: usize) -> Option<Rc<OnceCell<Cell>>> {
+    pub fn get_cell(&self, x: usize, y: usize) -> Option<Arc<Mutex<Cell>>> {
         let index = y * self.width + x;
-        self.cells.get(index).map(|cell| Rc::clone(cell))
+        self.cells.get(index).map(|cell| Arc::clone(cell))
     }
 }
 

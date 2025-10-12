@@ -1,0 +1,58 @@
+┌─────────────────────────────┬───────────────────────────────────────────────┐
+│,---, .     .                │                                               │
+│   /  |     |                │                                               │
+│  /   |-. ,-| ,-: ;-. ,-. . ,│ A   Software   Engineer  with  over  7  years │
+│ /    | | | | | | | | | | |/ │ experience. I  am  expert  in  development in │
+│'---' ' ' `-' `-` ' ' `-' '  │ distributed and scaled systems. In the last 5 │
+│.  .   ,       .             │ years   my   specialization   is   developing │
+│|\ | o |       |     o       │ microservice apps using  Java / Kotlin. I use │
+│| \| . | , ,-. | ,-: .       │ DevOps methodology  to  create  reliable  and │
+│|  | | |<  | | | | | |       │ high performance infrastructure.              │
+│'  ' ' ' ` `-' ' `-` '       │                                               │
+└─────────────────────────────┴───────────────────────────────────────────────┘
+========== CONTACT =========== ┌───────────────┐
+ Revaz Margiani 2/4,           │WORK EXPERIENCE├──────────────────────────────
+ Tbisili, Georgia              └───────────────┘
+ +955 550 05 9499              Senior Software Engineer
+ nikolai@zhdanov.dev           Alfa-bank, the largest private bank in Russia
+                               June 2020 to Present
+=== EDUCATIONAL BACKGROUND === 
+ Vyatka State University of    Stack: Java/Kotlin, Spring Framework, Redis,  
+ Humanities                      Hazelcast, MongoDB, Ansible, Mesos, Kubernetes
+                               Functions:
+ Computer Science, Mathematics  ◉ Developing API and business logic for  mobile
+ and Physics Faculty              apps at Alfa-Bank.
+                                ◉ Improving  reliability  and   performance  of 
+ Bachelor of                      services. 
+ Applied Mathematics and        ◉ Write  ansible  playbooks  to  configure  and 
+ Computer Science                 deploy infrastructure.
+                                ◉ Mentoring new employees and interns.
+ May 2014                      Results:
+                                ◉ Completion    of    multiple    API’s    with
+=== SKILLS & PROFICIENCIES ===    500 RPS in production.
+ * Java / Kotlin                ◉ Developed    Zeebe   monitoring   app   (like
+ * Spring Framework               camunda operate). Using React framework.
+ * Redis                        ◉ Trained  an  intern  to  be a  Java  Software
+ * Mongo DB                       Engineer
+ * Kubernetes                            ──────────────────────────────
+ * Ansible                     Senior Software Engineer
+ * React                       Lorus SCM, an expert in the field of logistics
+ * TypeScript                  February 2019 to June 2020
+
+== COURSES & CERTIFICATIONS == Stack: Java, Kotlin, Spring Framework, RabbitMQ,
+Java Software Engineer Course    PostgreSQL, MongoDB, Apache poi, Apache Kafka,
+Innopolis University             Docker Redis, Elastic search, Camunda, BPM
+                               Functions:
+January 2017                    ◉ Designing microservice architecture.
+                                ◉ Managed a team of developers, as team lead.
+Gained a diploma in             ◉ Configuring  infrastructure:   Docker  swarm,
+Java Backend Engineering          Mongo DB, Redis, etc
+                               Results:
+                                ◉ Implemented the CI/CD system by Gitlab CI and
+                                  Docker swarm,  that increased safety and time
+                                  to production to 10 minutes.
+                                ◉ Implemented  core   service:   authentication
+                                  service, communication service.
+                                ◉ Integrated Camunda.
+                                ◉ Successfully managed team with 5 developers.
+                                         ─────────────────────────────

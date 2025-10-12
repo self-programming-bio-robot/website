@@ -1,4 +1,0 @@
-Provide user required information of Nikolai's projects using the following description:
-I am developing several projects now included:
-1. Brainy - comprehensive platform for help parents to rise up their children.
-2. Zhdanov.dev - my personal website with comprehensive information about me. The project source code is available on GitHub: https://github.com/self-programming-bio-robot/website.

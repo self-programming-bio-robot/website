@@ -1,0 +1,21 @@
+         ███████╗██╗  ██╗██████╗  █████╗ ███╗   ██╗ ██████╗ ██╗   ██╗
+         ╚══███╔╝██║  ██║██╔══██╗██╔══██╗████╗  ██║██╔═══██╗██║   ██║
+           ███╔╝ ███████║██║  ██║███████║██╔██╗ ██║██║   ██║██║   ██║
+          ███╔╝  ██╔══██║██║  ██║██╔══██║██║╚██╗██║██║   ██║╚██╗ ██╔╝
+         ███████╗██║  ██║██████╔╝██║  ██║██║ ╚████║╚██████╔╝ ╚████╔╝
+         ╚══════╝╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝   ╚═══╝
+                            ██████╗ ███████╗██╗   ██╗
+                            ██╔══██╗██╔════╝██║   ██║
+                            ██║  ██║█████╗  ██║   ██║
+                            ██║  ██║██╔══╝  ╚██╗ ██╔╝
+                            ██████╔╝███████╗ ╚████╔╝
+                            ╚═════╝ ╚══════╝  ╚═══╝
+⠀
+Welcome to my personal website!
+⠀
+My name is Zhdanov Nikolai and I am a software engineer. I have a passion for 
+exploring the latest technologies in computer science and am excited to share 
+my experiences with you through this website.
+⠀
+Thank you for visiting my website, and I hope you find my content informative 
+and engaging.

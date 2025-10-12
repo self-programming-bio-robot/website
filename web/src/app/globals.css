@@ -1,0 +1,68 @@
+/* @tailwind base;
+@tailwind components;
+@tailwind utilities; */
+
+@layer base {
+  @font-face {
+    font-family: 'Clacon2';
+    font-style: normal;
+    font-weight: 400;
+    font-display: block;
+    src: url("/fonts/Clacon2.woff2");
+  }
+
+  :root {
+    --color: #5bf870;
+    --bg: #05321e;
+    --off: #050505;
+    --font-size-full: 2vw;
+    --text-opacity: 0.6;
+  }
+
+  body {
+    font-family: "Clacon2", monospace;
+    background-image: radial-gradient(ellipse, var(--bg) 0%, var(--off) 90%);
+    background-attachment: fixed;
+    padding: 0;
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    color: var(--color);
+  }
+
+  .screen {
+    height: 100vh;
+    width: 100vw;
+  }
+
+  .screen::before {
+    content: " ";
+    display: block;
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+                    rgba(18, 16, 16, 0.1) 50%,
+                    rgba(0, 0, 0, 0.3) 50%
+    );
+    background-size: 100% 8px;
+    z-index: 2;
+    pointer-events: none;
+    animation: fadeIn 2s;
+  }
+
+  ::selection {
+    background: var(--color);
+    color: var(--bg);
+    text-shadow: none;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  } 
+}

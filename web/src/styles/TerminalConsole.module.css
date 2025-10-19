@@ -10,6 +10,14 @@
   overflow: hidden;
 }
 
+.filterDefs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
 .terminal :global([name='react-console-emulator']) {
   background: transparent !important;
   backdrop-filter: blur(4px);
@@ -67,6 +75,104 @@
 .promptLabel::after {
   content: ' ';
   white-space: pre;
+  animation: scanline 5s linear infinite;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: radial-gradient(ellipse, var(--bg) 0%, var(--off) 90%);
+  pointer-events: none;
+  transition: opacity 0.28s ease, filter 0.28s ease;
+  z-index: 20;
+}
+
+.overlayActive {
+  opacity: 1;
+  pointer-events: auto;
+  animation: overlayBoot 0.32s ease;
+}
+
+.overlayInactive {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.overlayContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* gap: 2vh; */
+  width: 100%;
+  height: 100%;
+  background: rgba(3, 22, 15, 0.86);
+  animation: overlayGlow 1.8s ease infinite alternate;
+  position: relative;
+  /* padding: 6vh 8vw; */
+  overflow: hidden;
+}
+
+.overlayImage {
+  width: auto;
+  height: auto;
+  max-width: min(90vw, 1000px);
+  max-height: min(80vh, 700px);
+  object-fit: contain;
+  filter: contrast(110%) saturate(120%);
+}
+
+.overlayNoise {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+                  rgba(18, 16, 16, 0.3) 50%,
+                  rgba(0, 0, 0, 0.5) 50%
+  );
+  background-size: 100% 8px;
+  mix-blend-mode: screen;
+  opacity: 1;
+  animation: overlayNoise 0.14s steps(2) infinite;
+  pointer-events: none;
+}
+
+@keyframes overlayGlow {
+  0% {
+    background: rgba(3, 22, 15, 0.84);
+  }
+  50% {
+    background: rgba(3, 22, 15, 0.9);
+  }
+  100% {
+    background: rgba(3, 22, 15, 0.84);
+  }
+}
+
+@keyframes overlayNoise {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 0 2px;
+  }
+}
+
+@keyframes overlayBoot {
+  0% {
+    opacity: 0;
+    filter: blur(6px) contrast(60%);
+  }
+  55% {
+    opacity: 1;
+    filter: blur(2px) contrast(120%);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0px) contrast(100%);
+  }
 }
 
 @keyframes scanline {

@@ -4,7 +4,6 @@ import { useMemo } from 'react';
 import Terminal from 'react-console-emulator';
 
 import styles from '@/styles/TerminalConsole.module.css';
-import { executeCommand } from '@/app/actions/run-command';
 import welcomeMessageText from '@/pages/main.txt';
 import aboutMeText from '@/pages/about_me.txt';
 import cvText from '@/pages/cv.txt';

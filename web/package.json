@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.28.4",
-    "next": "15.5.3",
+    "next": "^15.5.9",
     "react": "19.1.0",
     "react-console-emulator": "^5.0.2",
     "react-dom": "19.1.0"
@@ -22,7 +22,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "15.5.3",
+    "eslint-config-next": "^15.5.9",
     "raw-loader": "^4.0.2",
     "tailwindcss": "^4",
     "typescript": "^5"

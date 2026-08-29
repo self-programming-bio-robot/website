@@ -1,0 +1,392 @@
+.terminal {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  animation: textShadow 4s infinite;
+}
+
+.viewport {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1.5rem 2vw;
+  scrollbar-width: none;
+  backdrop-filter: blur(4px);
+  font-size: var(--font-size-full);
+  line-height: 1;
+  opacity: var(--text-opacity);
+}
+
+.viewport::-webkit-scrollbar,
+.preformatted::-webkit-scrollbar,
+.tableViewport::-webkit-scrollbar {
+  display: none;
+}
+
+.outputLog,
+.entry,
+.blocks {
+  display: flex;
+  flex-direction: column;
+}
+
+.entry {
+  gap: 0;
+  margin-bottom: 0;
+}
+
+.blocks {
+  gap: 0;
+}
+
+.paragraph,
+.preformatted {
+  margin: 0;
+}
+
+.paragraph {
+  line-height: 1;
+  overflow-wrap: anywhere;
+}
+
+.blankLine {
+  flex: 0 0 1em;
+  height: 1em;
+}
+
+.preformatted {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  color: inherit;
+  font: inherit;
+  line-height: 1;
+  white-space: pre;
+  scrollbar-width: none;
+}
+
+.commandEcho,
+.inputForm {
+  display: flex;
+  min-height: 1em;
+  align-items: baseline;
+  gap: 0.5ch;
+}
+
+.prompt {
+  flex: 0 0 auto;
+  color: inherit;
+}
+
+.commandInput {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  caret-color: var(--color);
+  font: inherit;
+  line-height: inherit;
+  text-shadow: inherit;
+}
+
+.inputField {
+  position: relative;
+  min-width: 0;
+  flex: 1;
+}
+
+.commandInput:disabled {
+  opacity: 0.65;
+}
+
+.suggestions {
+  position: absolute;
+  bottom: calc(100% - 0.15em);
+  left: -4ch;
+  z-index: 10;
+  color: inherit;
+}
+
+.suggestionWindow {
+  position: relative;
+  isolation: isolate;
+  width: max-content;
+  margin: 0;
+  background-color: var(--off);
+  background-image: radial-gradient(ellipse, var(--bg) 0%, var(--off) 90%);
+  background-position: center;
+  background-size: 100vw 100vh;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  color: inherit;
+  font: inherit;
+  line-height: 1;
+  white-space: pre;
+}
+
+.suggestionWindow::before {
+  position: absolute;
+  inset: 0 -0.5ch;
+  z-index: -1;
+  background-color: var(--off);
+  background-image: radial-gradient(ellipse, var(--bg) 0%, var(--off) 90%);
+  background-position: center;
+  background-size: 100vw 100vh;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  content: '';
+  pointer-events: none;
+}
+
+.inlineLink,
+.mediaTrigger {
+  display: inline;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  border-radius: 0;
+  margin: 0;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  text-shadow: inherit;
+  text-align: inherit;
+  text-decoration: underline;
+  text-decoration-color: currentColor;
+  text-decoration-style: solid;
+  text-decoration-skip-ink: none;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.12em;
+  vertical-align: baseline;
+  white-space: inherit;
+  word-spacing: inherit;
+}
+
+.inlineLink:focus-visible,
+.mediaTrigger:focus-visible,
+.dialogClose:focus-visible {
+  outline: 2px solid var(--color);
+  outline-offset: 3px;
+}
+
+.commandInput:focus,
+.commandInput:focus-visible,
+.commandInput:hover {
+  outline: 0;
+  box-shadow: none;
+}
+
+.tableViewport {
+  position: relative;
+  overflow: visible;
+}
+
+.borderedTable,
+.borderlessTable {
+  table-layout: fixed;
+  border-collapse: collapse;
+  color: inherit;
+  font: inherit;
+  line-height: 1;
+}
+
+.borderlessTable td {
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+  vertical-align: top;
+}
+
+.flexibleTable {
+  width: 100%;
+}
+
+.characterMeasure {
+  position: absolute;
+  visibility: hidden;
+  font: inherit;
+  white-space: pre;
+  pointer-events: none;
+}
+
+.borderlessTable td {
+  border: 0;
+  padding: 0 1ch 0 0;
+}
+
+.characterTable {
+  width: max-content;
+  margin: 0;
+  color: inherit;
+  font: inherit;
+  line-height: 1;
+  white-space: pre;
+}
+
+.scanline {
+  position: absolute;
+  bottom: 100%;
+  z-index: 8;
+  width: 100%;
+  height: 100px;
+  pointer-events: none;
+  opacity: 0.1;
+  background: linear-gradient(0deg, transparent 0%, rgba(255, 255, 255, 0.2) 10%, rgba(0, 0, 0, 0.1) 100%);
+  animation: scanline 5s linear infinite;
+}
+
+.mediaDialog {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  max-width: none;
+  height: 100vh;
+  max-height: none;
+  border: 0;
+  padding: 0;
+  overflow: hidden;
+  background: radial-gradient(ellipse, var(--bg) 0%, var(--off) 90%);
+  color: var(--color);
+  animation: overlayBoot 0.32s ease;
+}
+
+.mediaDialog::backdrop {
+  background: transparent;
+}
+
+.dialogContent {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: rgba(3, 22, 15, 0.86);
+  animation: overlayGlow 1.8s ease infinite alternate;
+}
+
+.dialogMedia {
+  width: auto;
+  height: auto;
+  max-width: min(90vw, 1000px);
+  max-height: min(80vh, 700px);
+  object-fit: contain;
+}
+
+.dialogClose {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 3;
+  appearance: none;
+  -webkit-appearance: none;
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--font-size-full);
+  line-height: 1;
+  opacity: var(--text-opacity);
+  text-shadow: inherit;
+  text-decoration: none;
+}
+
+.overlayNoise {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 1;
+  background: linear-gradient(rgba(18, 16, 16, 0.3) 50%, rgba(0, 0, 0, 0.5) 50%);
+  background-size: 100% 8px;
+  mix-blend-mode: screen;
+  animation: overlayNoise 0.14s steps(2) infinite;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  border: 0;
+  white-space: nowrap;
+}
+
+:global(.terminal-filter-definitions) {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+@keyframes scanline {
+  0%, 80% { bottom: 100%; }
+  100% { bottom: -20%; }
+}
+
+@keyframes textShadow {
+  0%, 100% {
+    text-shadow: 0.44px 0 1px rgba(0, 30, 255, 0.5), -0.44px 0 1px rgba(255, 0, 80, 0.3), 0 0 3px;
+  }
+  25% {
+    text-shadow: 1.6px 0 1px rgba(0, 30, 255, 0.5), -1.6px 0 1px rgba(255, 0, 80, 0.3), 0 0 3px;
+  }
+  50% {
+    text-shadow: 0.08px 0 1px rgba(0, 30, 255, 0.5), -0.08px 0 1px rgba(255, 0, 80, 0.3), 0 0 3px;
+  }
+  75% {
+    text-shadow: 1.9px 0 1px rgba(0, 30, 255, 0.5), -1.9px 0 1px rgba(255, 0, 80, 0.3), 0 0 3px;
+  }
+}
+
+@keyframes overlayGlow {
+  from { background: rgba(3, 22, 15, 0.84); }
+  to { background: rgba(3, 22, 15, 0.9); }
+}
+
+@keyframes overlayNoise {
+  from { background-position: 0 0; }
+  to { background-position: 0 2px; }
+}
+
+@keyframes overlayBoot {
+  0% { opacity: 0; filter: blur(6px) contrast(60%); }
+  55% { opacity: 1; filter: blur(2px) contrast(120%); }
+  100% { opacity: 1; filter: blur(0) contrast(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .terminal,
+  .scanline,
+  .mediaDialog,
+  .dialogContent,
+  .overlayNoise {
+    animation: none;
+  }
+
+  .dialogMedia {
+    filter: none !important;
+  }
+}

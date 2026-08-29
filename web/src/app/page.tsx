@@ -1,4 +1,4 @@
-import TerminalConsole from '@/components/TerminalConsole';
+import TerminalConsole from '@/components/terminal/TerminalConsole';
 
 export default function Home() {
   return (

@@ -17,6 +17,22 @@
     --off: #050505;
     --font-size-full: 2vw;
     --text-opacity: 0.6;
+    --terminal-color-black: #050505;
+    --terminal-color-blue: #4355c7;
+    --terminal-color-green: #2fb344;
+    --terminal-color-cyan: #2aa9a9;
+    --terminal-color-red: #c94f4f;
+    --terminal-color-magenta: #b950b9;
+    --terminal-color-brown: #a87532;
+    --terminal-color-light-gray: #aab6ad;
+    --terminal-color-dark-gray: #566159;
+    --terminal-color-light-blue: #7186ff;
+    --terminal-color-light-green: #5bf870;
+    --terminal-color-light-cyan: #69eaea;
+    --terminal-color-light-red: #ff8a8a;
+    --terminal-color-light-magenta: #ed82ed;
+    --terminal-color-yellow: #f3e76b;
+    --terminal-color-white: #e8f5eb;
   }
 
   body {
